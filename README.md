@@ -7,6 +7,10 @@ Discordサーバー、sanchezyspace管理用Bot
     DISCORD_TOKEN = {your discord app token}
     GUILD_ID = {your server id}
     ```
+1. npm install
+    ```
+    $ npm install
+    ```
 
 2. ビルド
     ```
