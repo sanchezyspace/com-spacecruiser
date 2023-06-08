@@ -1,4 +1,5 @@
 # spacecruiser
+![HEADER IMAGE](https://static.wikia.nocookie.net/rickandmorty/images/1/17/Ricks_ship.PNG/revision/latest?cb=20160108071357)
 Discordサーバー、sanchezyspace管理用Bot
 
 # 導入
