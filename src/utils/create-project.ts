@@ -18,12 +18,18 @@ type Props = {
 
 let progressMessage = ''
 
-const addProgress = async (interaction: InteractionResponse, newLine: string) => {
+const addProgress = async (
+  interaction: InteractionResponse,
+  newLine: string
+) => {
   progressMessage = progressMessage + '\n' + newLine
   await interaction.edit(progressMessage)
 }
 
-const updateProgress = async (interaction: InteractionResponse, newLine: string) => {
+const updateProgress = async (
+  interaction: InteractionResponse,
+  newLine: string
+) => {
   const latestLines = progressMessage.split('\n') as string[]
   latestLines.pop()
   latestLines.push(newLine)
@@ -37,18 +43,19 @@ const getOverviewText = (
   githubUrl: string
 ) => {
   return `
-    # ${projectId}
-    \`概要\`
-    ${description}
+# ${projectId}
+\`概要\`
+${description}
 
-    \`GitHub\`
-    ${githubUrl}
-    `
+\`GitHub\`
+${githubUrl}
+`
 }
 
 export default async (props: Props) => {
   const { projectId, projectDesc, githubUrl } = props
-  console.log('project creation requested:', projectId, projectDesc, githubUrl)
+  progressMessage = ''
+  console.log('Project creation requested:', projectId)
 
   if (process.env.DISCORD_GUILD_ID === undefined) {
     throw new Error('Define DISCORD_GUILD_ID in .env file')
@@ -71,7 +78,7 @@ export default async (props: Props) => {
   })
   await updateProgress(
     props.interaction,
-    '✅ Channel created!\n' +
+    '✅ Project channel has been created!\n👉 ' +
       (channel?.id === undefined
         ? `#${props.projectId}`
         : channelMention(channel?.id as string))
@@ -88,7 +95,7 @@ export default async (props: Props) => {
   for (const [key, post] of Object.entries(defaultPosts)) {
     await updateProgress(
       props.interaction,
-      `⏳ Creating ${post.name} (${key} / ${defaultPosts.length})...`
+      `⏳ Preparing ${post.name} (${key} / ${defaultPosts.length})...`
     )
     const thread = await channel?.threads.create({
       name: post.name,
@@ -98,8 +105,8 @@ export default async (props: Props) => {
     })
 
     if (post.type === 'overview') {
-      thread?.pin()
-      thread?.send(overviewMessage)
+      await thread?.pin()
+      await thread?.send(overviewMessage)
     }
   }
   await updateProgress(props.interaction, `✅ Default posts were created!`)
@@ -112,9 +119,12 @@ export default async (props: Props) => {
     githubUrl,
   })
 
-  const notionPageUrl = "https://notion.so/" + notionPage.id.replace(/-/g, '')
+  const notionPageUrl = 'https://notion.so/' + notionPage.id.replace(/-/g, '')
 
-  await updateProgress(props.interaction, '✅ Project page was created in Notion! \n' + notionPageUrl)
+  await updateProgress(
+    props.interaction,
+    '✅ Project page was created in Notion! \n👉 ' + notionPageUrl
+  )
 
   return true
 }
