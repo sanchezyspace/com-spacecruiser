@@ -119,11 +119,9 @@ export default async (props: Props) => {
     githubUrl,
   })
 
-  const notionPageUrl = 'https://notion.so/' + notionPage.id.replace(/-/g, '')
-
   await updateProgress(
     props.interaction,
-    '✅ Project page was created in Notion! \n👉 ' + notionPageUrl
+    '✅ Project page was created in Notion! \n👉 ' + notionPage.url
   )
 
   return true

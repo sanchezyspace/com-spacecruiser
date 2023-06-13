@@ -1,5 +1,5 @@
 import { Client } from '@notionhq/client'
-import { CreatePageResponse } from '@notionhq/client/build/src/api-endpoints'
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import {
   heading1,
   paragraph,
@@ -50,9 +50,7 @@ export const createProjectPage = async (props: ProjectPageProps) => {
       },
     },
     children: pageBody,
-  })
+  }) as PageObjectResponse
 
-  console.log(response)
-
-  return response as CreatePageResponse
+  return response
 }
