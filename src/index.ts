@@ -9,6 +9,9 @@ import {
 import 'dotenv/config'
 
 import commands from './command'
+import createProject from './utils/create-project'
+
+require('./adapters/notion-adapter')
 
 class MyClient extends Client {
   commands?: Collection<string, Function>
@@ -64,6 +67,28 @@ client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
   }
 })
 
+// respond to modal submit
+client.on(Events.InteractionCreate, async (interaction) => {
+  if (!interaction.isModalSubmit()) return
+
+  // add project command of ./commands/addproject.ts
+  if (interaction.customId === 'addprojectModal') {
+    const projectId = interaction.fields.getTextInputValue('projectIdInput')
+    const projectDesc = interaction.fields.getTextInputValue('projectDescInput')
+    const githubUrl = interaction.fields.getTextInputValue('githubUrlInput')
+
+    const message = await interaction.reply({
+      content: 'Creating new project...',
+    })
+
+    createProject({
+      projectId: projectId,
+      projectDesc: projectDesc,
+      githubUrl: githubUrl,
+      interaction: message
+    })
+  }
+})
 
 client.on(Events.MessageCreate, async (message: Message) => {
   console.log('Message received: ' + message.content)
