@@ -8,6 +8,7 @@ import {
   channelMention,
 } from 'discord.js'
 import { createProjectPage } from '../adapters/notion-adapter'
+import { Logger } from './logger'
 
 type Props = {
   projectId: string
@@ -55,7 +56,9 @@ ${githubUrl}
 export default async (props: Props) => {
   const { projectId, projectDesc, githubUrl } = props
   progressMessage = ''
-  console.log('Project creation requested:', projectId)
+  const logger = new Logger(projectId)
+
+  logger.log('Project creation requested:', projectId)
 
   if (process.env.DISCORD_GUILD_ID === undefined) {
     throw new Error('Define DISCORD_GUILD_ID in .env file')
@@ -83,6 +86,7 @@ export default async (props: Props) => {
         ? `#${props.projectId}`
         : channelMention(channel?.id as string))
   )
+  logger.log('Project channel has been generated:', channel?.id)
 
   // create posts
   const overviewMessage = getOverviewText(projectId, projectDesc, githubUrl)
@@ -109,7 +113,9 @@ export default async (props: Props) => {
       await thread?.send(overviewMessage)
     }
   }
-  await updateProgress(props.interaction, `✅ Default posts were created!`)
+  await updateProgress(props.interaction, `✅ Default chat rooms are perfectly prepared!`)
+  logger.log('Default posts has been created')
+
 
   // create notion page
   await addProgress(props.interaction, '⏳ Creating Notion page...')
@@ -121,8 +127,13 @@ export default async (props: Props) => {
 
   await updateProgress(
     props.interaction,
-    '✅ Project page was created in Notion! \n👉 ' + notionPage.url
+    '✅ Generated brand-new project page in Notion! \n👉 ' + notionPage.url
   )
 
+  logger.log('Project page was successfully created:', notionPage.url)
+
+
+  await addProgress(props.interaction, '🎉 You are all set!')
+  logger.log('Project creation completed:', projectId)
   return true
 }

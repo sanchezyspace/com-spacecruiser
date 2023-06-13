@@ -47,7 +47,7 @@ export default {
 
       modal.addComponents(actionRows)
 
-      console.log('modal shown')
+      console.log('Create new project modal sent to ' + interaction.user.id)
       await interaction.showModal(modal)
     }
   },

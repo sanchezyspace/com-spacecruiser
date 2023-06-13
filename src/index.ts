@@ -91,7 +91,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 })
 
 client.on(Events.MessageCreate, async (message: Message) => {
-  console.log('Message received: ' + message.content)
+  // console.log('Message received: ' + message.content)
   if (message.content === 'ping') {
     await message.reply('Pong!')
   }
