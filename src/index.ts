@@ -10,6 +10,7 @@ import 'dotenv/config'
 
 import commands from './command'
 import createProject from './utils/create-project'
+import { fetchProjects } from './adapters/notion-adapter'
 
 require('./adapters/notion-adapter')
 
@@ -74,8 +75,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
   // add project command of ./commands/addproject.ts
   if (interaction.customId === 'addprojectModal') {
     const projectId = interaction.fields.getTextInputValue('projectIdInput')
-    const projectDesc = interaction.fields.getTextInputValue('projectDescInput')
-    const githubUrl = interaction.fields.getTextInputValue('githubUrlInput')
 
     const message = await interaction.reply({
       content: 'Creating new project...',
@@ -83,8 +82,6 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     createProject({
       projectId: projectId,
-      projectDesc: projectDesc,
-      githubUrl: githubUrl,
       interaction: message
     })
   }
@@ -94,6 +91,8 @@ client.on(Events.MessageCreate, async (message: Message) => {
   // console.log('Message received: ' + message.content)
   if (message.content === 'ping') {
     await message.reply('Pong!')
+    const projects = await fetchProjects()
+    console.log(projects);
   }
 })
 

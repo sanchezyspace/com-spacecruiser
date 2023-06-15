@@ -1,6 +1,5 @@
 import { ActionRowBuilder, TextInputStyle } from 'discord.js'
 import {
-  BaseInteraction,
   Interaction,
   ModalBuilder,
   SlashCommandBuilder,
@@ -41,8 +40,8 @@ export default {
 
       const actionRows = [
         new ActionRowBuilder().addComponents(projectIdInput),
-        new ActionRowBuilder().addComponents(projectDescInput),
-        new ActionRowBuilder().addComponents(githubUrlInput),
+        // new ActionRowBuilder().addComponents(projectDescInput),
+        // new ActionRowBuilder().addComponents(githubUrlInput),
       ] as Array<ActionRowBuilder<any>>
 
       modal.addComponents(actionRows)
