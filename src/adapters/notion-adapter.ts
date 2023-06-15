@@ -156,7 +156,7 @@ export async function updateProjectPage(project: Project) {
   }
 
   try {
-    notion.pages.update({
+    await notion.pages.update({
       page_id: project.notionPageId,
       properties: notionProps,
     })
