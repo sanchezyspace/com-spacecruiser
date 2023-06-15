@@ -1,16 +1,10 @@
-import { type } from 'os'
 import client from '..'
 import 'dotenv/config'
 import {
-  BaseInteraction,
   ChannelType,
-  ForumChannel,
-  GuildBasedChannel,
   InteractionResponse,
   ModalSubmitInteraction,
-  channelLink,
   channelMention,
-  messageLink,
 } from 'discord.js'
 import {
   createProjectPage,
@@ -68,7 +62,7 @@ export default async (props: Props) => {
   if (projectName === '') {
     throw new Error('Project ID is empty')
   }
-  
+
   project.name = projectName
   project.discordProposerUserId = interaction.user.id
 
@@ -158,7 +152,7 @@ export default async (props: Props) => {
   await updateProgress(
     props.interaction,
     '✅ Project is now introduced in ' +
-      channelMention(channel?.id as string) +
+      channelMention(projectsChannel?.id as string) +
       ' channel!'
   )
 
