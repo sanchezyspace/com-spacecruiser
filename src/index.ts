@@ -11,6 +11,7 @@ import 'dotenv/config'
 import commands from './command'
 import createProject from './utils/create-project'
 import { fetchProjects } from './adapters/notion-adapter'
+import { Projects } from './models/projects'
 
 require('./adapters/notion-adapter')
 
@@ -31,13 +32,17 @@ const client = new MyClient({
   ],
 })
 
-client.once(Events.ClientReady, (c: Client) => {
+client.once(Events.ClientReady, async (c: Client) => {
   if (client.commands) {
     for (const command of client.commands) {
       console.log('Registering command: ' + command[0])
     }
   }
   console.log('Ready! Logged in as ' + c.user?.tag)
+  console.log('Fetching projects...');
+  await guildProjectsCache.fetchProjects()
+  console.log('Fetched projects sucsessfully.', guildProjectsCache.projects.length, 'projects found.');
+
 })
 
 client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
@@ -92,10 +97,12 @@ client.on(Events.MessageCreate, async (message: Message) => {
   if (message.content === 'ping') {
     await message.reply('Pong!')
     const projects = await fetchProjects()
-    console.log(projects);
+    console.log(projects)
   }
 })
 
 client.login(process.env.DISCORD_TOKEN)
+
+export const guildProjectsCache = new Projects()
 
 export default client

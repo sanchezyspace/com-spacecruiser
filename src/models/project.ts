@@ -50,5 +50,3 @@ export class Project {
     this.additionalProperties = additionalProperties
   }
 }
-
-export const guildProjects: Project[] = []

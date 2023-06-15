@@ -8,7 +8,6 @@ import {
 } from 'discord.js'
 import {
   createProjectPage,
-  fetchProjects,
   fetchUniqueId,
   updateProjectPage,
 } from '../adapters/notion-adapter'
@@ -158,9 +157,8 @@ export default async (props: Props) => {
 
   // update notion properties
   logger.log('Updating project page...')
-  await updateProjectPage(project)
-  const updatedProjects = await fetchProjects()
-  console.log('updatedProjects:', updatedProjects)
+  const updatedProject = await updateProjectPage(project)
+  console.log('updatedProjects:', updatedProject)
 
   // done
   await addProgress(props.interaction, '🎉 You are all set!')
