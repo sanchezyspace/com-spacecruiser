@@ -1,5 +1,6 @@
 // insert new commands here
 import ping from './commands/ping'
+import addproject from './commands/addproject'
 import { Collection } from 'discord.js'
 
 // enable this to deploy commands
