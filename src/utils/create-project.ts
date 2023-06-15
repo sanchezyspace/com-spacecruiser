@@ -162,10 +162,10 @@ export default async (props: Props) => {
 
   // done
   await addProgress(props.interaction, '🎉 You are all set!')
-  await addProgress(
-    props.interaction,
-    '💡 You can reply "edit" on project post to edit project information.'
-  )
+  // await addProgress(
+  //   props.interaction,
+  //   '💡 You can reply "edit" on project post to edit project information.'
+  // )
   logger.log('Project creation completed:', projectName)
 
   return true
