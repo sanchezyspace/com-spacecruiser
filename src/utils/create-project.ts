@@ -171,7 +171,7 @@ export default async (props: Props) => {
   return true
 }
 
-const createProjectPostMessage = (project: Project) => {
+export const createProjectPostMessage = (project: Project) => {
   // console.log('cppm', project)
 
   const projectId = project.id ? '#' + project.id : ''

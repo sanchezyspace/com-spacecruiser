@@ -9,9 +9,14 @@ import {
 import 'dotenv/config'
 
 import commands from './command'
-import createProject from './utils/create-project'
-import { fetchProjects } from './adapters/notion-adapter'
+import createProject, { createProjectPostMessage } from './utils/create-project'
+import {
+  createProjectPage,
+  fetchProjects,
+  updateProjectPage,
+} from './adapters/notion-adapter'
 import { Projects } from './models/projects'
+import edit, { editSessionStore, editableProperties } from './commands/edit'
 
 require('./adapters/notion-adapter')
 
@@ -39,36 +44,64 @@ client.once(Events.ClientReady, async (c: Client) => {
     }
   }
   console.log('Ready! Logged in as ' + c.user?.tag)
-  console.log('Fetching projects...');
+  console.log('Fetching projects...')
   await guildProjectsCache.fetchProjects()
-  console.log('Fetched projects sucsessfully.', guildProjectsCache.projects.length, 'projects found.');
-
+  console.log(
+    'Fetched projects sucsessfully.',
+    guildProjectsCache.projects.length,
+    'projects found.'
+  )
 })
 
 client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
-  if (!interaction.isChatInputCommand()) return
+  if (interaction.isChatInputCommand()) {
+    // await interaction.deferReply()
+    const executeCommand = commands.get(interaction.commandName)
+    if (!executeCommand) {
+      console.error(`No command matching ${interaction.commandName} was found.`)
+      return
+    }
 
-  const executeCommand = commands.get(interaction.commandName)
-
-  if (!executeCommand) {
-    console.error(`No command matching ${interaction.commandName} was found.`)
-    return
+    try {
+      await executeCommand(interaction)
+    } catch (error) {
+      console.error(error)
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: 'There was an error while executing this command!',
+          ephemeral: true,
+        })
+      } else {
+        await interaction.reply({
+          content: 'There was an error while executing this command!',
+          ephemeral: true,
+        })
+      }
+    }
   }
 
-  try {
-    await executeCommand(interaction)
-  } catch (error) {
-    console.error(error)
-    if (interaction.replied || interaction.deferred) {
-      await interaction.followUp({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      })
-    } else {
-      await interaction.reply({
-        content: 'There was an error while executing this command!',
-        ephemeral: true,
-      })
+  if (interaction.isMessageContextMenuCommand()) {
+    // interaction.deferReply()
+    const executeCommand = commands.get(interaction.commandName)
+    if (!executeCommand) {
+      console.error(`No command matching ${interaction.commandName} was found.`)
+      return
+    }
+    try {
+      await executeCommand(interaction)
+    } catch (error) {
+      console.error(error)
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: 'There was an error while executing this command!',
+          ephemeral: true,
+        })
+      } else {
+        await interaction.reply({
+          content: 'There was an error while executing this command!',
+          ephemeral: true,
+        })
+      }
     }
   }
 })
@@ -87,8 +120,42 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
     createProject({
       projectId: projectId,
-      interaction: message
+      interaction: message,
     })
+  }
+
+  if (interaction.customId === 'editProjectModal') {
+    console.log('interaction:', interaction)
+
+    const reply = await interaction.reply({
+      content: '⏳Applying changes to the project...',
+      ephemeral: true,
+    })
+
+    const inputNames = editableProperties.map((e) => e.propName)
+    console.log('inputNames:', inputNames)
+
+    const projectMessage = editSessionStore.getSession(interaction.user)
+    console.log('projectMessage:', projectMessage)
+    editSessionStore.endSession(interaction.user)
+
+    if (projectMessage === undefined) {
+      throw new Error('Cannot get modal session by user.')
+    }
+
+    const project: any = guildProjectsCache.getProjectByProjectMessageId(
+      projectMessage.id
+    )
+    for (const inputName of inputNames) {
+      console.log('inputName:', inputName)
+      project[inputName] = interaction.fields.getTextInputValue(inputName)
+      console.log('project[inputName]:', project[inputName])
+    }
+    console.log('project:', project)
+    await updateProjectPage(project)
+    console.log('project updated.')
+    reply.edit('✅ Project edited successfully.')
+    projectMessage.edit(createProjectPostMessage(project))
   }
 })
 

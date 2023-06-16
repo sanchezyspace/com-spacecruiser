@@ -1,7 +1,5 @@
 import { Client } from '@notionhq/client'
-import {
-  PageObjectResponse
-} from '@notionhq/client/build/src/api-endpoints'
+import { PageObjectResponse } from '@notionhq/client/build/src/api-endpoints'
 import {
   heading1,
   paragraph,
@@ -109,11 +107,9 @@ export async function updateProjectPage(project: Project) {
 
   if (project.techStacks !== undefined) {
     notionProps['Tech Stacks'] = {
-      multi_select: {
-        options: project.techStacks.map((techStack) => {
-          return { name: techStack }
-        }),
-      },
+      multi_select: project.techStacks.map((techStack) => {
+        return { name: techStack }
+      }),
     }
   }
 
@@ -232,7 +228,7 @@ export async function fetchProjects() {
           incomeSource: page.properties['Income Source']?.rich_text[0]
             ? page.properties['Income Source']?.rich_text[0].plain_text
             : undefined,
-          channelId: page.properties['Channel ID']?.rich_text[0]
+          discordChannelId: page.properties['Channel ID']?.rich_text[0]
             ? page.properties['Channel ID']?.rich_text[0].plain_text
             : undefined,
           discordProjectMessageId: page.properties['Project Message ID']
