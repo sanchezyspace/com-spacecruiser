@@ -11,7 +11,8 @@
     "tsc": "tsc",
     "build": "npm-run-all clean tsc",
     "start": "node .",
-    "deploycommands": "npx ts-node ./src/deploy-commands.js"
+    "deploycommands": "npx ts-node ./src/deploy-commands.js",
+    "postinstall": "npm run deploycommands"
   },
   "keywords": [],
   "author": "",
