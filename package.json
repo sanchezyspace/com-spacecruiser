@@ -10,7 +10,8 @@
     "clean": "rimraf dist/*",
     "tsc": "tsc",
     "build": "npm-run-all clean tsc",
-    "start": "node ."
+    "start": "node .",
+    "deploycommands": "npx ts-node ./src/deploy-commands.js"
   },
   "keywords": [],
   "author": "",
