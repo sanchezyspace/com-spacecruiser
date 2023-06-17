@@ -11,12 +11,11 @@ import 'dotenv/config'
 import commands from './command'
 import createProject, { createProjectPostMessage } from './utils/create-project'
 import {
-  createProjectPage,
   fetchProjects,
   updateProjectPage,
 } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
-import edit, { editSessionStore, editableProperties } from './commands/edit'
+import { editSessionStore, editableProperties } from './commands/edit'
 
 require('./adapters/notion-adapter')
 
@@ -47,7 +46,7 @@ client.once(Events.ClientReady, async (c: Client) => {
   console.log('Fetching projects...')
   await guildProjectsCache.fetchProjects()
   console.log(
-    'Fetched projects sucsessfully.',
+    'Fetched projects successfully.',
     guildProjectsCache.projects.length,
     'projects found.'
   )
