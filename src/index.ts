@@ -10,12 +10,9 @@ import 'dotenv/config'
 
 import commands from './command'
 import createProject, { createProjectPostMessage } from './utils/create-project'
-import {
-  fetchProjects,
-  updateProjectPage,
-} from './adapters/notion-adapter'
+import { fetchProjects, updateProjectPage } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
-import { editSessionStore, editableProperties } from './commands/edit'
+import { editProject } from './interactions/modal/edit-project'
 
 require('./adapters/notion-adapter')
 
@@ -125,36 +122,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   if (interaction.customId === 'editProjectModal') {
     console.log('interaction:', interaction)
-
-    const reply = await interaction.reply({
-      content: '⏳Applying changes to the project...',
-      ephemeral: true,
-    })
-
-    const inputNames = editableProperties.map((e) => e.propName)
-    console.log('inputNames:', inputNames)
-
-    const projectMessage = editSessionStore.getSession(interaction.user)
-    console.log('projectMessage:', projectMessage)
-    editSessionStore.endSession(interaction.user)
-
-    if (projectMessage === undefined) {
-      throw new Error('Cannot get modal session by user.')
-    }
-
-    const project: any = guildProjectsCache.getProjectByProjectMessageId(
-      projectMessage.id
-    )
-    for (const inputName of inputNames) {
-      console.log('inputName:', inputName)
-      project[inputName] = interaction.fields.getTextInputValue(inputName)
-      console.log('project[inputName]:', project[inputName])
-    }
-    console.log('project:', project)
-    await updateProjectPage(project)
-    console.log('project updated.')
-    reply.edit('✅ Project edited successfully.')
-    projectMessage.edit(createProjectPostMessage(project))
+    await editProject(interaction)
   }
 })
 

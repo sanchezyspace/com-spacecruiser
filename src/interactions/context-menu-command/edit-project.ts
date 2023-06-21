@@ -4,35 +4,36 @@ import {
   ContextMenuCommandBuilder,
   Interaction,
   Message,
+  ModalActionRowComponentBuilder,
   ModalBuilder,
   TextInputBuilder,
   TextInputStyle,
   User,
   channelMention,
 } from 'discord.js'
-import { guildProjectsCache } from '..'
+import { guildProjectsCache } from '../..'
 
 export class EditSessionStore {
-  private sessions: Map<string, Message>;
+  private sessions: Map<string, Message>
 
   constructor() {
-    this.sessions = new Map();
+    this.sessions = new Map()
   }
 
   startSession(user: User, message: Message) {
-    this.sessions.set(user.id, message);
+    this.sessions.set(user.id, message)
   }
 
   getSession(user: User): Message | undefined {
-    return this.sessions.get(user.id);
+    return this.sessions.get(user.id)
   }
 
   endSession(user: User) {
-    this.sessions.delete(user.id);
+    this.sessions.delete(user.id)
   }
 }
 
-export const editSessionStore = new EditSessionStore();
+export const editSessionStore = new EditSessionStore()
 
 export const editableProperties = [
   {
@@ -111,7 +112,7 @@ export default {
       // const reply = await interaction.reply(
       //   '⏳ Fetching projects from notion...'
       // )
-      
+
       // 3秒のタイムアウトに引っかかりやすいのでスキップ
       // await guildProjectsCache.fetchProjects()
       const project = guildProjectsCache.getProjectByProjectMessageId(
@@ -127,7 +128,7 @@ export default {
         return
       }
 
-      editSessionStore.startSession(interaction.user, interaction.targetMessage);
+      editSessionStore.startSession(interaction.user, interaction.targetMessage)
 
       // await reply.edit(
       //   '✅ Projects are up to date. \nEdit project on shown modal.'
@@ -140,7 +141,7 @@ export default {
       const textInputs = []
 
       for (const element of editableProperties) {
-        console.log(element);
+        console.log(element)
         textInputs.push(
           new TextInputBuilder()
             .setCustomId(element.propName)
@@ -154,7 +155,7 @@ export default {
 
       const actionRows = textInputs.map((e) => {
         return new ActionRowBuilder().addComponents(e)
-      }) as ActionRowBuilder<any>[]
+      }) as ActionRowBuilder<ModalActionRowComponentBuilder>[]
 
       modal.addComponents(actionRows)
 

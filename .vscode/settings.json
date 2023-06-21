@@ -1,3 +1,4 @@
 {
-  "cSpell.words": ["addproject", "webext"]
+  "cSpell.words": ["addproject", "webext"],
+  "cSpell.ignoreWords": ["cppm"]
 }

@@ -9,7 +9,7 @@ const clientId = process.env.DISCORD_CLIENT_ID
 
 const commands = []
 // Grab all the command files from the commands directory you created earlier
-const commandsPath = path.join(__dirname, './commands')
+const commandsPath = path.join(__dirname, './interactions/chat-input-command')
 const commandFiles = fs
   .readdirSync(commandsPath)
   .filter((file) => file.endsWith('.ts'))
