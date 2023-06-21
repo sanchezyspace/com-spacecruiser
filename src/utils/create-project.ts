@@ -1,4 +1,4 @@
-import client from '..'
+import client, { guildProjectsCache } from '..'
 import 'dotenv/config'
 import {
   ChannelType,
@@ -167,6 +167,8 @@ export default async (props: Props) => {
   //   '💡 You can reply "edit" on project post to edit project information.'
   // )
   logger.log('Project creation completed:', projectName)
+
+  guildProjectsCache.fetchProjects()
 
   return true
 }
