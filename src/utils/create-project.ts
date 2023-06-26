@@ -65,7 +65,6 @@ export default async (props: Props) => {
   project.name = projectName
   project.discordProposerUserId = interaction.user.id
 
-
   const guild = client.guilds.cache.get(process.env.DISCORD_GUILD_ID)
 
   // create channel
@@ -141,9 +140,7 @@ export default async (props: Props) => {
   )
   const projectPostMessage = createProjectPostMessage(project)
   if (projectsChannel?.isTextBased()) {
-    const message = await projectsChannel.send(
-      projectPostMessage
-    )
+    const message = await projectsChannel.send(projectPostMessage)
     project.discordProjectMessageId = message.id
   } else {
     throw new Error('projectsChannel is not text-based channel')
@@ -190,7 +187,9 @@ export const createProjectPostMessage = (project: Project) => {
       : '') +
     (project.notionUrl ? `\n### Notion\n${project.notionUrl}` : '') +
     (project.githubUrl ? `\n### GitHub\n${project.githubUrl}` : '') +
-    (project.techStacks ? `\n### 技術スタック\n${project.techStacks}` : '') +
+    (project.githubUrl != null && project.techStacks?.length != 0
+      ? `\n### 技術スタック\n${project.techStacks?.map((e)=>`\`${e}\``)?.join(', ')}`
+      : '') +
     (project.incomeSource ? `\n### 収入源\n${project.incomeSource}` : '') +
     (project.discordProposerUserId
       ? `\n### 提案者\n<@${project.discordProposerUserId}>`
