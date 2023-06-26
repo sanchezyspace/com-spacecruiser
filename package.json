@@ -11,7 +11,7 @@
     "tsc": "tsc",
     "build": "npm-run-all clean tsc",
     "start": "node .",
-    "deletecommands": "node src/delete-all-commands.js",
+    "deletecommands": "node src/delete-all-commands.js"
   },
   "keywords": [],
   "author": "",
