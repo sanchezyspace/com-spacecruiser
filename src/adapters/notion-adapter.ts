@@ -81,31 +81,41 @@ export async function updateProjectPage(project: Project) {
 
   const notionProps = {} as any
 
-  if (project.displayTitle !== undefined) {
-    notionProps['Name'] = {
-      title: [{ text: { content: project.displayTitle } }],
+  if (project.name !== undefined && project.name !== null) {
+    if (project.name === '') {
+      throw new Error('Project name cannot be empty.')
     }
-  }
-
-  if (project.name !== undefined) {
     notionProps['Project Name'] = {
       rich_text: [{ type: 'text', text: { content: project.name } }],
     }
   }
 
-  if (project.description !== undefined) {
+  if (project.displayTitle !== undefined && project.displayTitle !== null) {
+    notionProps['Name'] = {
+      title: [
+        {
+          text: {
+            content:
+              project.displayTitle === '' ? project.name : project.displayTitle,
+          },
+        },
+      ],
+    }
+  }
+
+  if (project.description !== undefined && project.description !== null) {
     notionProps['Description'] = {
       rich_text: [{ type: 'text', text: { content: project.description } }],
     }
   }
 
-  if (project.githubUrl !== undefined) {
+  if (project.githubUrl !== undefined && project.githubUrl !== null) {
     notionProps['GitHub URL'] = {
-      url: project.githubUrl,
+      url: project.githubUrl == '' ? null : project.githubUrl,
     }
   }
 
-  if (project.techStacks !== undefined) {
+  if (project.techStacks !== undefined && project.techStacks !== null) {
     notionProps['Tech Stacks'] = {
       multi_select: project.techStacks.map((techStack) => {
         return { name: techStack }
@@ -113,13 +123,13 @@ export async function updateProjectPage(project: Project) {
     }
   }
 
-  if (project.incomeSource !== undefined) {
+  if (project.incomeSource !== undefined && project.incomeSource !== '') {
     notionProps['Income Source'] = {
       rich_text: [{ type: 'text', text: { content: project.incomeSource } }],
     }
   }
 
-  if (project.discordChannelId !== undefined) {
+  if (project.discordChannelId !== undefined && project.discordChannelId !== null) {
     notionProps['Channel ID'] = {
       rich_text: [
         { type: 'text', text: { content: project.discordChannelId } },
@@ -127,7 +137,7 @@ export async function updateProjectPage(project: Project) {
     }
   }
 
-  if (project.discordProjectMessageId !== undefined) {
+  if (project.discordProjectMessageId !== undefined && project.discordProjectMessageId !== null) {
     notionProps['Project Message ID'] = {
       rich_text: [
         { type: 'text', text: { content: project.discordProjectMessageId } },
@@ -135,7 +145,7 @@ export async function updateProjectPage(project: Project) {
     }
   }
 
-  if (project.discordIdeaMessageId !== undefined) {
+  if (project.discordIdeaMessageId !== undefined && project.discordIdeaMessageId !== null) {
     notionProps['Idea Message ID'] = {
       rich_text: [
         { type: 'text', text: { content: project.discordIdeaMessageId } },
@@ -143,7 +153,7 @@ export async function updateProjectPage(project: Project) {
     }
   }
 
-  if (project.discordProposerUserId !== undefined) {
+  if (project.discordProposerUserId !== undefined && project.discordProposerUserId !== null) {
     notionProps['Proposer User ID'] = {
       rich_text: [
         { type: 'text', text: { content: project.discordProposerUserId } },
