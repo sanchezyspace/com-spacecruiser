@@ -139,7 +139,7 @@ export default async (props: Props) => {
   // done
   await progressReply.addProgress('🎉 You are all set!')
   await progressReply.addProgress(
-    '💡 You can detail your project by selecting `edit` from the context menu of project information: ' +
+    '💡 You can edit your project by selecting `edit` from the context menu of project information\n👉 ' +
       messageLink(
         process.env.DISCORD_PROJECTS_CHANNEL_ID,
         project.discordProjectMessageId
