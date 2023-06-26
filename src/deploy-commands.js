@@ -1,3 +1,4 @@
+/* eslint-disable comma-dangle */
 const { REST, Routes } = require('discord.js')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -8,17 +9,38 @@ const guildId = process.env.DISCORD_GUILD_ID
 const clientId = process.env.DISCORD_CLIENT_ID
 
 const commands = []
+const rest = new REST().setToken(token)
+
 // Grab all the command files from the commands directory you created earlier
-const commandsPath = path.join(__dirname, './interactions/chat-input-command')
-const commandFiles = fs
-  .readdirSync(commandsPath)
+const chatInputCommandsPath = path.join(
+  __dirname,
+  './interactions/chat-input-command'
+)
+const contextMenuCommandsPath = path.join(
+  __dirname,
+  './interactions/context-menu-command'
+)
+const chatInputCommandFiles = fs
+  .readdirSync(chatInputCommandsPath)
   .filter((file) => file.endsWith('.ts'))
+const contextMenuCommandFiles = fs
+  .readdirSync(contextMenuCommandsPath)
+  .filter((file) => file.endsWith('.ts'))
+
+const commandFiles = [
+  ...chatInputCommandFiles.map((filePath) =>
+    path.join(chatInputCommandsPath, filePath)
+  ),
+  ...contextMenuCommandFiles.map((filePath) =>
+    path.join(contextMenuCommandsPath, filePath)
+  ),
+]
 
 console.log(commandFiles)
 // Grab the SlashCommandBuilder#toJSON() output of each command's data for deployment
-for (const file of commandFiles) {
-  const filePath = path.join(commandsPath, file)
+for (const filePath of commandFiles) {
   const command = require(filePath).default
+  // console.log(command)
   if ('data' in command && 'execute' in command) {
     commands.push(command.data.toJSON())
   } else {
@@ -28,10 +50,8 @@ for (const file of commandFiles) {
   }
 }
 
-// Construct and prepare an instance of the REST module
-const rest = new REST().setToken(token)
-
 // and deploy your commands!
+
 ;(async () => {
   try {
     console.log(
