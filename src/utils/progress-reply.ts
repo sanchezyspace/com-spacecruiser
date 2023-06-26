@@ -3,9 +3,9 @@ export class ProgressReply {
   private progressMessage: string
   private interaction: any
 
-  constructor(interaction: any) {
+  constructor(replyInteraction: any) {
     this.progressMessage = ''
-    this.interaction = interaction
+    this.interaction = replyInteraction
   }
 
   async addProgress(newLine: string) {
