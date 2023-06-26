@@ -12,6 +12,7 @@
     "build": "npm-run-all clean tsc",
     "start": "node .",
     "deploycommands": "npx ts-node ./src/deploy-commands.js",
+    "deletecommands": "node src/delete-all-commands.js",
     "postinstall": "npm run deploycommands"
   },
   "keywords": [],
