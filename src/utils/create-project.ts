@@ -140,7 +140,10 @@ export default async (props: Props) => {
   await progressReply.addProgress('🎉 You are all set!')
   await progressReply.addProgress(
     '💡 You can detail your project by selecting `edit` from the context menu of project information: ' +
-      messageLink(process.env.DISCORD_PROJECTS_CHANNEL_ID, project.discordProjectMessageId)
+      messageLink(
+        process.env.DISCORD_PROJECTS_CHANNEL_ID,
+        project.discordProjectMessageId
+      )
   )
   logger.log('Project creation completed:', projectName)
 
@@ -161,6 +164,7 @@ export const createProjectPostMessage = (project: Project) => {
   const message =
     `\n#  ${headingText}` +
     (project.description ? `\n${project.description}` : '') +
+    (project.name ? `\n### リポジトリ名\n${project.name}` : '') +
     (project.discordChannelId
       ? `\n### チャンネル\n<#${project.discordChannelId}>`
       : '') +
