@@ -16,7 +16,7 @@ Discordサーバー、sanchezyspace管理用Bot
     NOTION_TOKEN = {notionのトークン}
     NOTION_PROJECTS_DATABASE_ID = {projectsデータベースのID}
     ```
-    Notionのトークンは開発チャンネルに載ってます
+    NotionのトークンとかDiscordサーバーのチャンネルIDとか、足りない情報は[開発チャンネル](https://discord.com/channels/1111117517281312827/1114946016681152663/1123150198907093105)に載ってます
 
 4. パッケージのインストール
     ```sh
@@ -41,6 +41,12 @@ Discordサーバー、sanchezyspace管理用Bot
   ```sh
   $ npm run dev:watch
   ```
+
+# contribution
+1. **`develop`ブランチから**開発ブランチを切る
+2. 開発する
+3. **`develop`ブランチに**PR出す
+4. `develop`ブランチに**勝手にマージしない**
 
 # 開発tips
 
