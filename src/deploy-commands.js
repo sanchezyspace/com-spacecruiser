@@ -23,10 +23,10 @@ const contextMenuCommandsPath = path.join(
 )
 const chatInputCommandFiles = fs
   .readdirSync(chatInputCommandsPath)
-  .filter((file) => file.endsWith('.ts'))
+  .filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 const contextMenuCommandFiles = fs
   .readdirSync(contextMenuCommandsPath)
-  .filter((file) => file.endsWith('.ts'))
+  .filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 
 const commandFiles = [
   ...chatInputCommandFiles.map((filePath) =>

@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-extra-semi */
 import {
   BaseInteraction,
   Client,
@@ -14,9 +15,29 @@ import { fetchProjects } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
 import { editProject } from './interactions/modal/edit-project'
 
+import yargs from 'yargs'
+
+const BOT_VERSION = '1.1.0'
+
+const args = yargs
+  .command('* [options]', 'boot the spacecruiser')
+  .version(BOT_VERSION)
+  .options({
+    'deploy-commands': {
+      type: 'boolean',
+      describe: 'deploy commands to discord',
+      demandOption: true,
+      default: false,
+      alias: 'd',
+    },
+  })
+  .parseSync()
+
+const DEPLOY_COMMANDS_MODE = args['deploy-commands']
+
 require('./adapters/notion-adapter')
 
-type ExecuteCallback = (interaction: any) => void
+type ExecuteCallback = (interaction: any) => Promise<void>
 class MyClient extends Client {
   commands?: Collection<string, ExecuteCallback>
 
@@ -136,7 +157,15 @@ client.on(Events.MessageCreate, async (message: Message) => {
   }
 })
 
-client.login(process.env.DISCORD_TOKEN)
+if (DEPLOY_COMMANDS_MODE) {
+  ;(async () => {
+    console.log('Deploying commands...')
+    await require('./deploy-commands')
+  })()
+} else {
+  console.log('Booting spacecruiser...')
+  client.login(process.env.DISCORD_TOKEN)
+}
 
 export const guildProjectsCache = new Projects()
 

@@ -7,7 +7,7 @@ import edit from './interactions/context-menu-command/edit-project'
 // enable this to deploy commands
 const DEPLOY_COMMANDS = false
 
-type ExecuteCallback = (interaction: any) => void
+type ExecuteCallback = (interaction: any) => Promise<void>
 type CommandModule = {
   data: any
   execute: ExecuteCallback
