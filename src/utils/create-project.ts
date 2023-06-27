@@ -15,7 +15,6 @@ import {
 import { Logger } from './logger'
 import { Project } from '../models/project'
 import { ProgressReply } from './progress-reply'
-import { env } from 'process'
 
 type Props = {
   projectId: string

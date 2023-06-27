@@ -7,9 +7,10 @@ import edit from './interactions/context-menu-command/edit-project'
 // enable this to deploy commands
 const DEPLOY_COMMANDS = false
 
+type ExecuteCallback = (interaction: any) => void
 type CommandModule = {
   data: any
-  execute: Function
+  execute: ExecuteCallback
 }
 
 // enable this to deploy commands
@@ -17,7 +18,7 @@ if (DEPLOY_COMMANDS) require('./deploy-commands')
 
 // insert new commands here
 const commandModules: CommandModule[] = [ping, addproject, edit]
-const commands: Collection<string, Function> = new Collection()
+const commands: Collection<string, ExecuteCallback> = new Collection()
 
 for (const commandModule of commandModules) {
   commands.set(commandModule.data.name, commandModule.execute)

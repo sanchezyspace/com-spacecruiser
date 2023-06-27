@@ -1,7 +1,9 @@
-require('dotenv').config()
+import config from 'dotenv'
 
-const { REST } = require('@discordjs/rest')
-const { Routes } = require('discord-api-types/v9')
+import { REST } from '@discordjs/rest'
+import { Routes } from 'discord-api-types/v9'
+
+config()
 
 const token = process.env.DISCORD_TOKEN
 const guildId = process.env.DISCORD_GUILD_ID

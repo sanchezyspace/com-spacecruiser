@@ -4,11 +4,17 @@ module.exports = {
     es2021: true,
     node: true,
   },
-  extends: ['eslint:recommended'],
+  extends: [
+    'eslint:recommended',
+    'eslint-config-prettier',
+    'plugin:@typescript-eslint/recommended',
+  ],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module',
   },
-  rules: {},
-  plugins: ['only-warn'],
+  plugins: ['only-warn', '@typescript-eslint'],
+  rules: {
+    '@typescript-eslint/no-explicit-any': 'off',
+  },
 }

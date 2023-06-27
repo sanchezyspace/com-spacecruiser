@@ -1,4 +1,11 @@
 {
-  "cSpell.words": ["addproject", "webext"],
-  "cSpell.ignoreWords": ["cppm"],
+  "cSpell.words": [
+    "addproject",
+    "deploycommands",
+    "Pongoe",
+    "sanchezyspace",
+    "spacecruiser",
+    "webext"
+  ],
+  "cSpell.ignoreWords": ["cppm"]
 }

@@ -57,8 +57,10 @@ export async function editProject(interaction: ModalSubmitInteraction) {
   if (beforeProjectName !== project.name) {
     await progressReply.addProgress('⏳ Updating project channel name...')
     try {
-      console.log('project.discordChannelId:', project.discordChannelId);
-      const projectsChannel = await guild?.channels.fetch(project.discordChannelId)
+      console.log('project.discordChannelId:', project.discordChannelId)
+      const projectsChannel = await guild?.channels.fetch(
+        project.discordChannelId
+      )
       // console.log('projectsChannel:', projectsChannel);
 
       await projectsChannel?.setName(project.name)

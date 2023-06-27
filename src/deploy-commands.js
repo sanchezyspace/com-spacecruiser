@@ -1,4 +1,5 @@
-/* eslint-disable comma-dangle */
+/* eslint-disable @typescript-eslint/no-extra-semi */
+/* eslint-disable @typescript-eslint/no-var-requires */
 const { REST, Routes } = require('discord.js')
 const fs = require('node:fs')
 const path = require('node:path')
@@ -49,8 +50,6 @@ for (const filePath of commandFiles) {
     )
   }
 }
-
-// and deploy your commands!
 
 ;(async () => {
   try {

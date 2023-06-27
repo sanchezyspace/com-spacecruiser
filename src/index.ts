@@ -9,15 +9,16 @@ import {
 import 'dotenv/config'
 
 import commands from './command'
-import createProject, { createProjectPostMessage } from './utils/create-project'
-import { fetchProjects, updateProjectPage } from './adapters/notion-adapter'
+import createProject from './utils/create-project'
+import { fetchProjects } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
 import { editProject } from './interactions/modal/edit-project'
 
 require('./adapters/notion-adapter')
 
+type ExecuteCallback = (interaction: any) => void
 class MyClient extends Client {
-  commands?: Collection<string, Function>
+  commands?: Collection<string, ExecuteCallback>
 
   constructor(options: any) {
     super(options)
