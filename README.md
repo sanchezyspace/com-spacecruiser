@@ -83,11 +83,11 @@ Discordサーバー、sanchezyspace管理用Bot
     export default {
       data: new SlashCommandBuilder()
         .setName('new-command')
-        .setDescription('it means “I am in great pain, please help me.”'),
+        .setDescription('spacecruiser replies with wubba lubba dub-dub!'),
 
       execute: async (interaction) => {
         if (interaction.isChatInputCommand()) {
-          interaction.reply('Pongoe!');
+          interaction.reply('Wubba Lubba dub-dub');
         }
       },
     };
