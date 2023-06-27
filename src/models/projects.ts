@@ -16,6 +16,16 @@ export class Projects {
     return this.projects
   }
 
+  getProjectByName(name: string) {
+    return this.projects.find((project) => project.name === name)
+  }
+
+  getProjectByProjectMessageId(projectMessageId: string) {
+    return this.projects.find(
+      (project) => project.discordProjectMessageId === projectMessageId
+    )
+  }
+
   async fetchProjects() {
     this.projects = await fetchProjects()
     return this.projects
