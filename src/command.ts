@@ -3,6 +3,7 @@ import ping from './interactions/chat-input-command/ping'
 import addproject from './interactions/chat-input-command/addproject'
 import { Collection } from 'discord.js'
 import edit from './interactions/context-menu-command/edit-project'
+import playIto from './interactions/chat-input-command/play-ito'
 
 // enable this to deploy commands
 const DEPLOY_COMMANDS = false
@@ -17,7 +18,7 @@ type CommandModule = {
 if (DEPLOY_COMMANDS) require('./deploy-commands')
 
 // insert new commands here
-const commandModules: CommandModule[] = [ping, addproject, edit]
+const commandModules: CommandModule[] = [ping, addproject, edit,playIto]
 const commands: Collection<string, ExecuteCallback> = new Collection()
 
 for (const commandModule of commandModules) {
