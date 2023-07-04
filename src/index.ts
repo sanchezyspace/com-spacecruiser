@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-extra-semi */
 import {
   BaseInteraction,
   Client,
@@ -158,7 +157,7 @@ client.on(Events.MessageCreate, async (message: Message) => {
 })
 
 if (DEPLOY_COMMANDS_MODE) {
-  ;(async () => {
+  (async () => {
     console.log('Deploying commands...')
     await require('./deploy-commands')
   })()
