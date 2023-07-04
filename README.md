@@ -66,7 +66,7 @@ Discordサーバー、sanchezyspace管理用Bot
 
 ## サーバーで使えるコマンドの追加方法
 1. コマンドのスクリプトを作成
-    TypeScriptで書きたい人は `.ts`を作ってください。テンプレートもJSだから自分で書き換えて。
+    TypeScriptで書きたい人は `.ts`を作ってください。
     **スラッシュコマンドの場合：**
     ```sh
     $ touch src/interactions/chat-input-command/{command-name}.js
@@ -76,7 +76,7 @@ Discordサーバー、sanchezyspace管理用Bot
     $ touch src/interactions/context-menu-command/{command-name}.js
     ```
 2. テンプレートをコピペ
-   **スラッシュコマンドの場合：**
+   **スラッシュコマンドの場合 (JavaScript)：**
     ```javascript
     import { SlashCommandBuilder } from 'discord.js';
 
@@ -93,7 +93,22 @@ Discordサーバー、sanchezyspace管理用Bot
     };
     ```
 
-    **メッセージコンテキストメニューの場合：**
+   **スラッシュコマンドの場合 (TypeScript)：**
+    ```typescript
+    import { ChatInputCommandInteraction, SlashCommandBuilder } from 'discord.js';
+
+    export default {
+      data: new SlashCommandBuilder()
+        .setName('new-command')
+        .setDescription('spacecruiser replies with wubba lubba dub-dub!'),
+
+      execute: async (interaction: ChatInputCommandInteraction) => {
+          interaction.reply('Wubba Lubba dub-dub');
+      },
+    };
+    ```
+
+    **メッセージコンテキストメニューの場合 (JavaScript)：**
     ```javascript
     import { ApplicationCommandType, ContextMenuCommandBuilder } from 'discord.js'
 
@@ -106,6 +121,25 @@ Discordサーバー、sanchezyspace管理用Bot
         if (interaction.isMessageContextMenuCommand()) {
           interaction.reply('Wubba Lubba dub-dub')
         }
+      },
+    }
+    ```
+
+    **メッセージコンテキストメニューの場合 (TypeScript)：**
+    ```typescript
+    import {
+      ApplicationCommandType,
+      ContextMenuCommandBuilder,
+      MessageContextMenuCommandInteraction,
+    } from 'discord.js'
+
+    export default {
+      data: new ContextMenuCommandBuilder()
+        .setName('New Command')
+        .setType(ApplicationCommandType.Message),
+
+      execute: async (interaction: MessageContextMenuCommandInteraction) => {
+        interaction.reply('Wubba Lubba dub-dub')
       },
     }
     ```
