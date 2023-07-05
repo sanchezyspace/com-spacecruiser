@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-extra-semi */
 import {
   BaseInteraction,
   Client,
@@ -8,14 +7,12 @@ import {
   Message,
 } from 'discord.js'
 import 'dotenv/config'
+import yargs from 'yargs'
 
-import commands from './command'
-import createProject from './utils/create-project'
 import { fetchProjects } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
-import { editProject } from './interactions/modal/edit-project'
-
-import yargs from 'yargs'
+import { loadCommands } from './command'
+import loadModalModules from './modal'
 
 const BOT_VERSION = '1.1.0'
 
@@ -34,8 +31,7 @@ const args = yargs
   .parseSync()
 
 const DEPLOY_COMMANDS_MODE = args['deploy-commands']
-
-require('./adapters/notion-adapter')
+let modalModules: Map<string, (interaction: any) => Promise<void>> = new Map()
 
 type ExecuteCallback = (interaction: any) => Promise<void>
 class MyClient extends Client {
@@ -56,25 +52,36 @@ const client = new MyClient({
 })
 
 client.once(Events.ClientReady, async (c: Client) => {
-  if (client.commands) {
-    for (const command of client.commands) {
-      console.log('Registering command: ' + command[0])
-    }
-  }
-  console.log('Ready! Logged in as ' + c.user?.tag)
-  console.log('Fetching projects...')
+  console.log('✅ Logged in as ' + c.user?.tag + '\n')
+
+  console.log('⏳ Loading command modules...')
+  client.commands = await loadCommands()
+  console.log('✅ Command modules loaded successfully.\n')
+
+  console.log('⏳ Loading modal modules...')
+  modalModules = await loadModalModules()
+  console.log('✅ Modal modules loaded successfully.\n')
+
+  console.log('⏳ Fetching projects...')
   await guildProjectsCache.fetchProjects()
   console.log(
-    'Fetched projects successfully.',
+    '✅ Fetched projects successfully.',
     guildProjectsCache.projects.length,
-    'projects found.'
+    'projects found.\n'
   )
+
+  console.log('🚀 Spacecruiser is ready to launch!\n')
 })
 
 client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
+  // 起動時に登録されたスラッシュコマンドを呼び出す
   if (interaction.isChatInputCommand()) {
+    if (!client.commands) {
+      console.error(`Commands are not loaded.`)
+      return
+    }
     // await interaction.deferReply()
-    const executeCommand = commands.get(interaction.commandName)
+    const executeCommand = client.commands.get(interaction.commandName)
     if (!executeCommand) {
       console.error(`No command matching ${interaction.commandName} was found.`)
       return
@@ -98,9 +105,14 @@ client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
     }
   }
 
+  // 起動時に登録されたスラッシュコマンドを呼び出す
   if (interaction.isMessageContextMenuCommand()) {
     // interaction.deferReply()
-    const executeCommand = commands.get(interaction.commandName)
+    if (!client.commands) {
+      console.error(`Commands are not loaded.`)
+      return
+    }
+    const executeCommand = client.commands.get(interaction.commandName)
     if (!executeCommand) {
       console.error(`No command matching ${interaction.commandName} was found.`)
       return
@@ -124,27 +136,19 @@ client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
   }
 })
 
-// respond to modal submit
-client.on(Events.InteractionCreate, async (interaction) => {
+// モーダル送信時の処理
+client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
   if (!interaction.isModalSubmit()) return
+  const callback = modalModules.get(interaction.customId)
 
-  // add project command of ./commands/addproject.ts
-  if (interaction.customId === 'addprojectModal') {
-    const projectId = interaction.fields.getTextInputValue('projectIdInput')
-
-    const message = await interaction.reply({
-      content: 'Creating new project...',
+  if (callback) {
+    await callback(interaction)
+  } else {
+    console.log('No callback found for modal ID: ' + interaction.customId)
+    await interaction.reply({
+      content: '❌ An error occurred while processing the modal submission.',
+      ephemeral: true,
     })
-
-    createProject({
-      projectId: projectId,
-      interaction: message,
-    })
-  }
-
-  if (interaction.customId === 'editProjectModal') {
-    console.log('interaction:', interaction)
-    await editProject(interaction)
   }
 })
 
@@ -158,12 +162,10 @@ client.on(Events.MessageCreate, async (message: Message) => {
 })
 
 if (DEPLOY_COMMANDS_MODE) {
-  ;(async () => {
-    console.log('Deploying commands...')
-    await require('./deploy-commands')
-  })()
+  console.log('⏳ Deploying commands...')
+  import('./deploy-commands')
 } else {
-  console.log('Booting spacecruiser...')
+  console.log('⏳ Booting spacecruiser...')
   client.login(process.env.DISCORD_TOKEN)
 }
 

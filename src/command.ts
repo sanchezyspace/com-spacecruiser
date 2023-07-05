@@ -1,35 +1,62 @@
-// insert new commands here
-import ping from './interactions/chat-input-command/ping'
-import addproject from './interactions/chat-input-command/addproject'
-import { Collection } from 'discord.js'
-import edit from './interactions/context-menu-command/edit-project'
-import playIto from './interactions/chat-input-command/play-ito'
-import tanabataTanabota from './interactions/chat-input-command/tanabata-tanabota'
+import fs from 'fs'
+import path from 'path'
+import {
+  Collection,
+  ContextMenuCommandBuilder,
+  SlashCommandBuilder,
+} from 'discord.js'
 
-// enable this to deploy commands
 const DEPLOY_COMMANDS = false
 
 type ExecuteCallback = (interaction: any) => Promise<void>
 type CommandModule = {
-  data: any
-  execute: ExecuteCallback
+  default: {
+    data: SlashCommandBuilder | ContextMenuCommandBuilder
+    execute: ExecuteCallback
+  }
 }
 
 // enable this to deploy commands
 if (DEPLOY_COMMANDS) require('./deploy-commands')
 
-// insert new commands here
-const commandModules: CommandModule[] = [
-  ping,
-  addproject,
-  edit,
-  playIto,
-  tanabataTanabota,
+// list of directories to search for command files
+const commandDirs = [
+  './interactions/chat-input-command',
+  './interactions/context-menu-command',
 ]
-const commands: Collection<string, ExecuteCallback> = new Collection()
 
-for (const commandModule of commandModules) {
-  commands.set(commandModule.data.name, commandModule.execute)
+const commandModules: CommandModule[] = []
+
+export const loadCommands = async (): Promise<
+  Collection<string, ExecuteCallback>
+> => {
+  for (const dir of commandDirs) {
+    const commandFiles = fs
+      .readdirSync(path.resolve(__dirname, dir))
+      .filter((file) => file.endsWith('.ts'))
+
+    for (const file of commandFiles) {
+      console.log(`Loading command file: ${file}`)
+      const command: CommandModule = await import(`./${dir}/${file}`)
+      commandModules.push(command)
+    }
+  }
+
+  const commands: Collection<string, ExecuteCallback> = new Collection()
+
+  for (const commandModule of commandModules) {
+    if (commandModule.default.data instanceof SlashCommandBuilder) {
+      console.log(
+        `Registering slash command: /${commandModule.default.data.name}`
+      )
+    } else if (
+      commandModule.default.data instanceof ContextMenuCommandBuilder
+    ) {
+      console.log(
+        `Registering context menu command: ${commandModule.default.data.name}`
+      )
+    }
+    commands.set(commandModule.default.data.name, commandModule.default.execute)
+  }
+  return commands
 }
-
-export default commands
