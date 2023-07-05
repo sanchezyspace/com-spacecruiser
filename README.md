@@ -3,8 +3,9 @@
 Discordサーバー、sanchezyspace管理用Bot
 
 # 環境構築
-1. 開発用Discord Botを[新たに作成しトークンを取得](https://www.geeklibrary.jp/counter-attack/discord-js-bot/?nab=0)
-2. Notionのトークンを取得
+1. 開発用Discord Botを[新たに作成、トークンを取得、サーバーに招待](https://www.geeklibrary.jp/counter-attack/discord-js-bot/?nab=0)
+   アプリ、bot名は両方`spacecruiser-dev-chelluoxou`みたいな感じで、`spacecruiser-dev`から必ずはじまるようにして、誰が開発しているBotなのかわかるようにしてください
+2. Notionのトークンを取得（dev今のところないです [開発チャンネル](https://discord.com/channels/1111117517281312827/1114946016681152663/1123150198907093105)にprodあります）
 3. `.env.development`を以下のように記述
     ```
     DISCORD_TOKEN = {開発用botのトークン}
@@ -23,7 +24,14 @@ Discordサーバー、sanchezyspace管理用Bot
     $ npm install
     ```
 
-5. 実行
+5. 開発用Botにコマンドをデプロイ
+    （Discord上でのコマンド入力仕様に関する変更があるたびに実行が必要）
+    ```sh
+    $ npm run deploy-commands:dev
+    ```
+
+6. 実行
+    （コマンドの処理部分、その他コードの変更時はこれだけでOK）
     ```sh
     $ npm run dev
     ```
@@ -46,23 +54,10 @@ Discordサーバー、sanchezyspace管理用Bot
 1. **`develop`ブランチから**開発ブランチを切る
 2. 開発する
 3. **`develop`ブランチに**PR出す
-4. **`develop`**ブランチに**勝手にマージしたらだめ**だし**直接pushしない**ことkoto
-5. 当然、**`main`**ブランチにも**勝手にマージしたらだめだ**だし**直接pushしない**こと
+- **`develop`**ブランチに**勝手にマージしたらだめ**だし**直接pushしない**ことkoto
+- 当然、**`main`**ブランチにも**勝手にマージしたらだめだ**だし**直接pushしない**こと
 
 # 開発tips
-
-## 便利なリンク
-- [Discord JS Japan - やりたいこと逆引き集、サンプルプログラム](https://scrapbox.io/discordjs-japan/%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8%E9%80%86%E5%BC%95%E3%81%8D%E9%9B%86)
-  日本語でサクサク読める。サンプルだけで30個あるし、これは見るだけでなんとなく雰囲気掴めると思います。ただし、逆引きサンプルとかクラスの説明自体はドキュメントよりもシンプルな書かれ方をしてる。ある程度わかってる人向け。
-- [【Javascriptで作成する】Discordのbotの作り方 Discord.js v14](https://www.geeklibrary.jp/counter-attack/discord-js-bot/?nab=0)
-  Discord.js v14でBotを作る方法をイチから説明してくれてる。文量多め。丁寧。
-
-- [公式ドキュメント old.discordjs.dev](https://old.discordjs.dev/#/docs/discord.js/main/general/welcome)
-  わかりづらい...
-- [公式ドキュメント discordjs.guide](https://discordjs.guide/)
-  わかりづらいし、どれが何
-- [GitHub](https://github.com/discordjs/discord.js)
-  ギットハブ
 
 ## サーバーで使えるコマンドの追加方法
 1. コマンドのスクリプトを作成
@@ -143,21 +138,22 @@ Discordサーバー、sanchezyspace管理用Bot
       },
     }
     ```
-3. [src/command.ts](src/command.ts)にコマンドを追加
-    21行目あたりの`commandModules`に追加したコマンドをインポート
-    ```typescript
-    ...
-
-    // insert new commands here
-    const commandModules: CommandModule[] = [ping, addproject, edit, newCommand]
-    
-    ...
-    ```
-4. 開発用Botにコマンドをデプロイ
+3. 開発用Botにコマンドをデプロイ
     ```sh
     $ npm run deploy-commands:dev
     ```
+## 便利なリンク
+- [Discord JS Japan - やりたいこと逆引き集、サンプルプログラム](https://scrapbox.io/discordjs-japan/%E3%82%84%E3%82%8A%E3%81%9F%E3%81%84%E3%81%93%E3%81%A8%E9%80%86%E5%BC%95%E3%81%8D%E9%9B%86)
+  日本語でサクサク読める。サンプルだけで30個あるし、これは見るだけでなんとなく雰囲気掴めると思います。ただし、逆引きサンプルとかクラスの説明自体はドキュメントよりもシンプルな書かれ方をしてる。ある程度わかってる人向け。
+- [【Javascriptで作成する】Discordのbotの作り方 Discord.js v14](https://www.geeklibrary.jp/counter-attack/discord-js-bot/?nab=0)
+  Discord.js v14でBotを作る方法をイチから説明してくれてる。文量多め。丁寧。
 
+- [公式ドキュメント old.discordjs.dev](https://old.discordjs.dev/#/docs/discord.js/main/general/welcome)
+  型定義、関数、クラスに関するドキュメントはこっち
+- [公式ドキュメント discordjs.guide](https://discordjs.guide/)
+  導入ガイドや、逆引き集、チュートリアルなどはこっち。
+- [GitHub - discordjs/discord.js](https://github.com/discordjs/discord.js)
+  ギット・ハブ
 ## production環境へのデプロイ
 
 覚書です　基本的に勝手にやらないで
@@ -196,4 +192,4 @@ Discordサーバー、sanchezyspace管理用Bot
 - Prettier
 - husky
 # 招待
-[Botを招待する](https://discord.com/api/oauth2/authorize?client_id=1116186393392193627&permissions=8&scope=bot)
+[公開用Botを招待する](https://discord.com/api/oauth2/authorize?client_id=1116186393392193627&permissions=8&scope=bot)
