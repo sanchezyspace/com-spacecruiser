@@ -14,7 +14,7 @@ import { fetchProjects } from './adapters/notion-adapter'
 import { Projects } from './models/projects'
 import { editProject } from './interactions/modal/edit-project'
 
-import yargs from 'yargs'
+import { loadCommands } from './command'
 
 const BOT_VERSION = '1.1.0'
 
@@ -33,8 +33,6 @@ const args = yargs
   .parseSync()
 
 const DEPLOY_COMMANDS_MODE = args['deploy-commands']
-
-require('./adapters/notion-adapter')
 
 type ExecuteCallback = (interaction: any) => Promise<void>
 class MyClient extends Client {
@@ -55,12 +53,11 @@ const client = new MyClient({
 })
 
 client.once(Events.ClientReady, async (c: Client) => {
-  if (client.commands) {
-    for (const command of client.commands) {
-      console.log('Registering command: ' + command[0])
-    }
-  }
   console.log('Ready! Logged in as ' + c.user?.tag)
+
+  console.log('Loading commands...')
+  client.commands = await loadCommands()
+
   console.log('Fetching projects...')
   await guildProjectsCache.fetchProjects()
   console.log(
@@ -71,9 +68,14 @@ client.once(Events.ClientReady, async (c: Client) => {
 })
 
 client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
+  // 起動時に登録されたスラッシュコマンドを呼び出す
   if (interaction.isChatInputCommand()) {
+    if (!client.commands) {
+      console.error(`Commands are not loaded.`)
+      return
+    }
     // await interaction.deferReply()
-    const executeCommand = commands.get(interaction.commandName)
+    const executeCommand = client.commands.get(interaction.commandName)
     if (!executeCommand) {
       console.error(`No command matching ${interaction.commandName} was found.`)
       return
@@ -97,9 +99,14 @@ client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
     }
   }
 
+  // 起動時に登録されたスラッシュコマンドを呼び出す
   if (interaction.isMessageContextMenuCommand()) {
     // interaction.deferReply()
-    const executeCommand = commands.get(interaction.commandName)
+    if (!client.commands) {
+      console.error(`Commands are not loaded.`)
+      return
+    }
+    const executeCommand = client.commands.get(interaction.commandName)
     if (!executeCommand) {
       console.error(`No command matching ${interaction.commandName} was found.`)
       return
