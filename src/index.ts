@@ -137,7 +137,7 @@ client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
 })
 
 // モーダル送信時の処理
-client.on(Events.InteractionCreate, async (interaction) => {
+client.on(Events.InteractionCreate, async (interaction: BaseInteraction) => {
   if (!interaction.isModalSubmit()) return
   const callback = modalModules.get(interaction.customId)
 
