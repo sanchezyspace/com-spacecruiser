@@ -1,16 +1,18 @@
+import { InteractionResponse } from 'discord.js'
+
 // todo: 行の操作ハンドラを返し、それを使って進捗を更新するようにする
 export class ProgressReply {
   private progressMessage: string
-  private interaction: any
+  private message: InteractionResponse
 
-  constructor(replyInteraction: any) {
+  constructor(message: InteractionResponse) {
     this.progressMessage = ''
-    this.interaction = replyInteraction
+    this.message = message
   }
 
   async addProgress(newLine: string) {
     this.progressMessage = this.progressMessage + '\n' + newLine
-    await this.interaction.edit(this.progressMessage)
+    await this.message.edit(this.progressMessage)
   }
 
   async updateProgress(newLine: string) {
@@ -18,6 +20,6 @@ export class ProgressReply {
     latestLines.pop()
     latestLines.push(newLine)
     this.progressMessage = latestLines.join('\n')
-    await this.interaction.edit(this.progressMessage)
+    await this.message.edit(this.progressMessage)
   }
 }
