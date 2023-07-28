@@ -58,6 +58,7 @@
     "discord.js": "^14.11.0",
     "discordx": "^11.7.6",
     "dotenv": "^16.1.4",
+    "graphemesplit": "^2.4.4",
     "yargs": "^17.7.2"
   }
 }

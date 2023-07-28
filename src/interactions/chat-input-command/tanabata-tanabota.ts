@@ -7,12 +7,7 @@ import {
   Channel,
 } from 'discord.js'
 import client from '../..'
-import { number } from 'yargs'
-
-//コピペコード from "https://qiita.com/YusukeHirao/items/2f0fb8d5bbb981101be0"
-function stringToArray(str: string) {
-  return str.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []
-}
+import split from 'graphemesplit'
 
 export default {
   data: new SlashCommandBuilder()
@@ -36,8 +31,10 @@ export default {
   execute: async (interaction: ChatInputCommandInteraction) => {
     const negaiText = interaction.options.getString('願い')
     if (negaiText === null) return
-    const negaiArray = stringToArray(negaiText)
-    const negaiLongs: number = stringToArray(negaiText).length
+    console.log(negaiText)
+    const negaiArray = split(negaiText)
+    const negaiLongs: number = negaiArray.length
+    console.log(negaiArray)
     await interaction.reply({
       content:
         '叶うわけないやろがい' + negaiText + userMention(interaction.user.id),
@@ -61,8 +58,8 @@ export default {
     let tanzakuString = '★┷━┓'
 
     tanzakuString += '\n'
-    const splitUsername = stringToArray(useName)
-    const usernameLongs: number = stringToArray(useName).length
+    const splitUsername = split(useName)
+    const usernameLongs: number = splitUsername.length
 
     let overString: number
     if (usernameLongs > negaiLongs) {
