@@ -2,7 +2,17 @@ import {
   BaseInteraction,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
+  userMention,
+  Client,
+  Channel,
 } from 'discord.js'
+import client from '../..'
+import { number } from 'yargs'
+
+//コピペコード from "https://qiita.com/YusukeHirao/items/2f0fb8d5bbb981101be0"
+function stringToArray(str: string) {
+  return str.match(/[\uD800-\uDBFF][\uDC00-\uDFFF]|[^\uD800-\uDFFF]/g) || []
+}
 
 export default {
   data: new SlashCommandBuilder()
@@ -24,9 +34,67 @@ export default {
         .setRequired(false)
     ),
   execute: async (interaction: ChatInputCommandInteraction) => {
-    interaction.reply({
-      content: '叶うわけないやろがい' + interaction.options.getString('願い'),
+    const negaiText = interaction.options.getString('願い')
+    if (negaiText === null) return
+    const negaiArray = stringToArray(negaiText)
+    const negaiLongs: number = stringToArray(negaiText).length
+    await interaction.reply({
+      content:
+        '叶うわけないやろがい' + negaiText + userMention(interaction.user.id),
       ephemeral: true,
     })
+    //願いの分割
+
+    //匿名かの判断
+    let useName: string
+    if (
+      interaction.options.getBoolean('匿名') === false ||
+      interaction.options.getBoolean('匿名') === null
+    ) {
+      //匿名では無い場合
+      useName = interaction.user.username
+    } else {
+      //匿名の場合
+      useName = '匿名'
+    }
+    //短冊の作成
+    let tanzakuString = '★┷━┓'
+
+    tanzakuString += '\n'
+    const splitUsername = stringToArray(useName)
+    const usernameLongs: number = stringToArray(useName).length
+
+    let overString: number
+    if (usernameLongs > negaiLongs) {
+      //ユーザー名の方が長かった場合
+      overString = usernameLongs - negaiLongs
+      for (let i = 0; i < overString; i++) {
+        tanzakuString += '┃' + '　' + splitUsername[i] + '┃' + '\n'
+      }
+      for (let i = 0; i < negaiLongs; i++) {
+        tanzakuString +=
+          '┃' + negaiArray[i] + splitUsername[overString + i] + '┃' + '\n'
+      }
+    } else {
+      //usernameの方が短かった場合
+      overString = negaiLongs - usernameLongs
+      for (let i = 0; i < overString; i++) {
+        tanzakuString += '┃' + negaiArray[i] + '　' + '┃' + '\n'
+      }
+      for (let i = 0; i < usernameLongs; i++) {
+        tanzakuString +=
+          '┃' + negaiArray[overString + i] + splitUsername[i] + '┃' + '\n'
+      }
+    }
+    tanzakuString += '┗' + '━━' + '★'
+
+    //チャンネルに送信(半分理解なので有識者に聞く)https://stackoverflow.com/questions/62899012/discord-js-cast-or-convert-guildchannel-to-textchannel
+    //const TargetChannel =  client.channels.cache.get('1112583911495708762')//テキストチャンネル
+    //const TargetChannel = client.channels.cache.get("1118120544236228628")//スレッド(動作した)
+    // await client.channels.cache.get('1126734764708216973')?.send()
+    const targetChannel = client.channels.cache.get('1126734764708216973') //短冊チャンネル
+    if (targetChannel?.isTextBased()) {
+      await targetChannel.send(tanzakuString)
+    }
   },
 }
