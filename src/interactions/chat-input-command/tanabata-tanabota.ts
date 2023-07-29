@@ -9,6 +9,116 @@ import {
 import client from '../..'
 import split from 'graphemesplit'
 
+function moziZennkakuKa(str: string) {
+  const kanaMap: {
+    [K: string]: string
+  } = {
+    ｶﾞ: 'ガ',
+    ｷﾞ: 'ギ',
+    ｸﾞ: 'グ',
+    ｹﾞ: 'ゲ',
+    ｺﾞ: 'ゴ',
+    ｻﾞ: 'ザ',
+    ｼﾞ: 'ジ',
+    ｽﾞ: 'ズ',
+    ｾﾞ: 'ゼ',
+    ｿﾞ: 'ゾ',
+    ﾀﾞ: 'ダ',
+    ﾁﾞ: 'ヂ',
+    ﾂﾞ: 'ヅ',
+    ﾃﾞ: 'デ',
+    ﾄﾞ: 'ド',
+    ﾊﾞ: 'バ',
+    ﾋﾞ: 'ビ',
+    ﾌﾞ: 'ブ',
+    ﾍﾞ: 'ベ',
+    ﾎﾞ: 'ボ',
+    ﾊﾟ: 'パ',
+    ﾋﾟ: 'ピ',
+    ﾌﾟ: 'プ',
+    ﾍﾟ: 'ペ',
+    ﾎﾟ: 'ポ',
+    ｳﾞ: 'ヴ',
+    ﾜﾞ: 'ヷ',
+    ｦﾞ: 'ヺ',
+    ｱ: 'ア',
+    ｲ: 'イ',
+    ｳ: 'ウ',
+    ｴ: 'エ',
+    ｵ: 'オ',
+    ｶ: 'カ',
+    ｷ: 'キ',
+    ｸ: 'ク',
+    ｹ: 'ケ',
+    ｺ: 'コ',
+    ｻ: 'サ',
+    ｼ: 'シ',
+    ｽ: 'ス',
+    ｾ: 'セ',
+    ｿ: 'ソ',
+    ﾀ: 'タ',
+    ﾁ: 'チ',
+    ﾂ: 'ツ',
+    ﾃ: 'テ',
+    ﾄ: 'ト',
+    ﾅ: 'ナ',
+    ﾆ: 'ニ',
+    ﾇ: 'ヌ',
+    ﾈ: 'ネ',
+    ﾉ: 'ノ',
+    ﾊ: 'ハ',
+    ﾋ: 'ヒ',
+    ﾌ: 'フ',
+    ﾍ: 'ヘ',
+    ﾎ: 'ホ',
+    ﾏ: 'マ',
+    ﾐ: 'ミ',
+    ﾑ: 'ム',
+    ﾒ: 'メ',
+    ﾓ: 'モ',
+    ﾔ: 'ヤ',
+    ﾕ: 'ユ',
+    ﾖ: 'ヨ',
+    ﾗ: 'ラ',
+    ﾘ: 'リ',
+    ﾙ: 'ル',
+    ﾚ: 'レ',
+    ﾛ: 'ロ',
+    ﾜ: 'ワ',
+    ｦ: 'ヲ',
+    ﾝ: 'ン',
+    ｧ: 'ァ',
+    ｨ: 'ィ',
+    ｩ: 'ゥ',
+    ｪ: 'ェ',
+    ｫ: 'ォ',
+    ｯ: 'ッ',
+    ｬ: 'ャ',
+    ｭ: 'ュ',
+    ｮ: 'ョ',
+    '｡': '。',
+    '､': '、',
+    ｰ: 'ー',
+    '｢': '「',
+    '｣': '」',
+    '･': '・',
+    ' ﾞ': '゛',
+    ' ﾟ': '゜',
+    ' ': '　',
+    '＿': '｜',
+    '｜': '＿', //正規表現に使われる文字なので全角→全角じゃないとバグる
+  }
+
+  const reg = new RegExp('(' + Object.keys(kanaMap).join('|') + ')', 'g')
+  return str
+    .replace(/[!-~]/g, function (s) {
+      return String.fromCharCode(s.charCodeAt(0) + 0xfee0)
+    })
+    .replace(reg, function (match) {
+      return kanaMap[match]
+    })
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('tanabata')
@@ -55,9 +165,11 @@ export default {
       useName = '匿名'
     }
     //短冊の作成
-    let tanzakuString = '★┷━┓'
+    let tanzakuString = '★┷━━┓'
 
     tanzakuString += '\n'
+    console.log(useName)
+    console.log(moziZennkakuKa(useName))
     const splitUsername = split(useName)
     const usernameLongs: number = splitUsername.length
 
@@ -66,24 +178,33 @@ export default {
       //ユーザー名の方が長かった場合
       overString = usernameLongs - negaiLongs
       for (let i = 0; i < overString; i++) {
-        tanzakuString += '┃' + '　' + splitUsername[i] + '┃' + '\n'
+        tanzakuString +=
+          '┃' + '　' + moziZennkakuKa(splitUsername[i]) + '┃' + '\n'
       }
       for (let i = 0; i < negaiLongs; i++) {
         tanzakuString +=
-          '┃' + negaiArray[i] + splitUsername[overString + i] + '┃' + '\n'
+          '┃' +
+          moziZennkakuKa(negaiArray[i]) +
+          moziZennkakuKa(splitUsername[overString + i]) +
+          '┃' +
+          '\n'
       }
     } else {
       //usernameの方が短かった場合
       overString = negaiLongs - usernameLongs
       for (let i = 0; i < overString; i++) {
-        tanzakuString += '┃' + negaiArray[i] + '　' + '┃' + '\n'
+        tanzakuString += '┃' + moziZennkakuKa(negaiArray[i]) + '　' + '┃' + '\n'
       }
       for (let i = 0; i < usernameLongs; i++) {
         tanzakuString +=
-          '┃' + negaiArray[overString + i] + splitUsername[i] + '┃' + '\n'
+          '┃' +
+          moziZennkakuKa(negaiArray[overString + i]) +
+          moziZennkakuKa(splitUsername[i]) +
+          '┃' +
+          '\n'
       }
     }
-    tanzakuString += '┗' + '━━' + '★'
+    tanzakuString += '┗' + '━━━' + '★'
 
     //チャンネルに送信(半分理解なので有識者に聞く)https://stackoverflow.com/questions/62899012/discord-js-cast-or-convert-guildchannel-to-textchannel
     //const TargetChannel =  client.channels.cache.get('1112583911495708762')//テキストチャンネル
