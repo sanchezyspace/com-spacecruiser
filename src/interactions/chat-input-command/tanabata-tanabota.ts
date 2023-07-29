@@ -9,6 +9,31 @@ import {
 import client from '../..'
 import split from 'graphemesplit'
 
+const splitString = (s: string): string[] => {
+  const customEmojiPattern = /<:[a-zA-Z0-9_]+:[0-9]+>/g
+  const matches = [...s.matchAll(customEmojiPattern)]
+
+  let lastEnd = 0
+  const result: string[] = []
+
+  for (const match of matches) {
+    const start = match.index ?? 0
+    // これまでの文字を追加
+    const substr = s.slice(lastEnd, start)
+    result.push(...split(substr))
+
+    // カスタム絵文字を追加
+    result.push(match[0])
+    lastEnd = start + match[0].length
+  }
+
+  // 残りの文字を追加
+  const remaining = s.slice(lastEnd)
+  result.push(...split(remaining))
+
+  return result
+}
+
 export default {
   data: new SlashCommandBuilder()
     .setName('tanabata')
@@ -32,7 +57,7 @@ export default {
     const negaiText = interaction.options.getString('願い')
     if (negaiText === null) return
     console.log(negaiText)
-    const negaiArray = split(negaiText)
+    const negaiArray = splitString(negaiText)
     const negaiLongs: number = negaiArray.length
     console.log(negaiArray)
     await interaction.reply({
