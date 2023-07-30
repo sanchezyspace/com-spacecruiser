@@ -188,6 +188,7 @@ Discordサーバー、sanchezyspace管理用Bot
 - TypeScript
 - Yargs
 - graphemesplit
+- twemoji-parser
 
 - ESLint
 - Prettier
