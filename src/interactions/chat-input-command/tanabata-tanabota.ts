@@ -1,16 +1,11 @@
 import {
-  BaseInteraction,
   ChatInputCommandInteraction,
   SlashCommandBuilder,
   userMention,
-  Client,
-  Channel,
 } from 'discord.js'
 import client from '../..'
 import split from 'graphemesplit'
-import { array, number } from 'yargs'
-import { EmojiEntity, TypeName, parse } from 'twemoji-parser'
-import { url } from 'inspector'
+import { parse } from 'twemoji-parser'
 
 function moziZennkakuKa(str: string) {
   const kanaMap: {
@@ -165,23 +160,10 @@ export default {
   execute: async (interaction: ChatInputCommandInteraction) => {
     const negaiText = interaction.options.getString('願い')
     if (negaiText === null) return
-    // // console.log(negaiText)
-
-    // 絵文字検索
-    let negaiEmojiTest: EmojiEntity[]
-
-    negaiEmojiTest = parse(negaiText)
-    if (!(Object.keys(negaiEmojiTest).length === 0)) {
-      // console.log(negaiEmojiTest[0].url)
-    } else {
-      // console.log("not found emoji")
-    }
 
     //願いの分割
     const negaiArray = split(negaiText)
     let negaiLongs: number = negaiArray.length
-    // console.log(negaiArray)
-    // console.log(negaiLongs)
 
     let emojiEndPoint: number
     let judgmentEmoji = false //true間が絵文字の可能性
@@ -196,7 +178,7 @@ export default {
       if (negaiArray[i] === '<' && negaiArray[i + 1] === ':') {
         if (!judgmentEmoji) {
           // 頭文字発見の場合
-          // console.log('find emoji first')
+
           emojiFirstPoint[emojiUseNumber] = i
           emojiName[emojiUseNumber] = '!'
           judgmentEmoji = true
@@ -207,12 +189,10 @@ export default {
           emojiId.slice(emojiUseNumber, 1)
           judgmentEmoji = false
           judgmentEmojiMiddle = false
-          // console.log('cant find end befor first')
         } else {
           // 中間文字すら見つかっていない場合
           emojiFirstPoint.slice(emojiUseNumber, 1)
           judgmentEmoji = false
-          // console.log('cant find middle befor first')
         }
       }
       // カスタム文字のnameとidをわける":"が見つかった場合
@@ -223,18 +203,17 @@ export default {
         ) {
           // 前に先頭文字が見つかっていた場合
           judgmentEmojiMiddle = true
-          // console.log('find emoji middle')
+
           emojiId[emojiUseNumber] = '!'
         } else {
           // ":"のみ見つかった場合
-          // console.log('cant find first befor middle')
         }
       }
       // カスタム絵文字の可能性のある末尾文字">"を見つけた場合の処理
       if (negaiArray[i] === '>') {
         if (judgmentEmojiMiddle) {
           // 先頭文字と中間文字が存在した場合
-          // console.log('find emoji end')
+
           emojiEndPoint = i + 1
           // カスタム絵文字部分の圧縮
           negaiArray[emojiFirstPoint[emojiFirstPoint.length - 1]] = '!'
@@ -252,13 +231,12 @@ export default {
           emojiUseNumber++
         } else if (judgmentEmoji) {
           // 先頭文字が見つかったのに中間文字が見つからなかった場合
-          // console.log('cant find middle befor end')
+
           emojiFirstPoint.slice(emojiUseNumber, 1)
           emojiName.slice(emojiUseNumber, 1)
           judgmentEmoji = false
         } else {
           // 末尾文字だけ見つかった場合
-          // console.log('cant find first befor end')
         }
       }
       // カスタム文字のnameを取得
@@ -305,12 +283,6 @@ export default {
       i++
     }
 
-    // console.log(negaiArray)
-    // console.log(negaiLongs)
-    // console.log(emojiFirstPoint)
-    // console.log(emojiName)
-    // console.log(emojiId)
-
     await interaction.reply({
       content:
         '叶うわけないやろがい' + negaiText + userMention(interaction.user.id),
@@ -333,8 +305,7 @@ export default {
     let tanzakuString = '★━┷━━━┓'
 
     tanzakuString += '\n'
-    // // console.log(useName)
-    // // console.log(moziZennkakuKa(useName))
+
     const splitUsername = split(useName)
     const usernameLongs: number = splitUsername.length
 
