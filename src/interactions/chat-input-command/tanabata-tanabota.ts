@@ -117,25 +117,149 @@ function convertToFullWidth(str: string) {
       return kanaMap[match]
     })
 }
-const emojiFirstPoint: number[] = []
-const emojiName: string[] = []
-const emojiId: string[] = []
 
-function formatLine(characte: string, negaiIndex: number) {
+type SpliceEmoji = {
+  index: number
+  name: string
+  id: string
+}
+
+const formatLine = (
+  character: string,
+  negaiIndex: number,
+  splicedEmojis: SpliceEmoji[]
+) => {
   let returnString = ''
-  if (!(Object.keys(parse(characte)).length === 0)) {
+  if (!(Object.keys(parse(character)).length === 0)) {
     // 絵文字アリの場合
-    returnString = characte
-  } else if (emojiFirstPoint.includes(negaiIndex)) {
+    returnString = character
+  } else if (splicedEmojis.map((e) => e.index).includes(negaiIndex)) {
     // カスタム絵文字アリの場合
-    const useEmojiNumber = emojiFirstPoint.indexOf(negaiIndex)
-    returnString = formatEmoji(emojiId[useEmojiNumber])
+    const emojisIndex = splicedEmojis.map((e) => e.index).indexOf(negaiIndex)
+    returnString = formatEmoji(splicedEmojis[emojisIndex].id)
   } else {
     //絵文字無しの場合
-    returnString = ' ' + convertToFullWidth(characte) + ' '
+    returnString = ' ' + convertToFullWidth(character) + ' '
   }
 
   return returnString
+}
+
+const spliceCustomEmojis = (negaiArray: string[]) => {
+  let isProcessingCustomEmoji = false //true間が絵文字の可能性
+  let isProcessingCustomEmojiId = false // trueでnameとid間の":"発見
+  let newCustomEmoji: {
+    index?: number
+    name?: string
+    id?: string
+  } = {}
+  const emojiIdPattern = new RegExp('[0-9]') // emojiIdの例外処理用
+  const emojiNamePattern = new RegExp('[a-z]|[A-Z]|[0-9]|_') // emojiNameの例外処理用
+  const splicedEmojis: SpliceEmoji[] = []
+
+  let i = 0
+
+  while (!(negaiArray[i] === undefined)) {
+    if (negaiArray[i] === '<' && negaiArray[i + 1] === ':') {
+      // カスタム絵文字の可能性のある先端文字"<:"を見つけた場合
+      if (!isProcessingCustomEmoji) {
+        // "<:"
+        // 頭文字発見の場合
+        newCustomEmoji.index = i
+        isProcessingCustomEmoji = true
+      } else if (isProcessingCustomEmojiId) {
+        // "<:emojiName:123123 <:"
+        // 前回の絵文字の末尾文字が見つからず、先頭文字が見つかった場合
+        newCustomEmoji = {}
+        newCustomEmoji.index = i
+        isProcessingCustomEmoji = true
+        isProcessingCustomEmojiId = false
+      } else {
+        // "<:emojiName <:"
+        // 中間文字すら見つかっていない場合
+        newCustomEmoji = {}
+        newCustomEmoji.index = i
+        isProcessingCustomEmoji = true
+        isProcessingCustomEmojiId = false
+      }
+    }
+
+    if (negaiArray[i] === ':' && !isProcessingCustomEmojiId) {
+      // ":"が見つかった場合
+
+      if (isProcessingCustomEmoji && (negaiArray[i - 1] ?? '') !== '<') {
+        // 前に先頭文字が見つかっていた場合 (=カスタム文字のnameとidをわける":"だった場合)
+        isProcessingCustomEmojiId = true
+        newCustomEmoji.id = ''
+      }
+    }
+
+    if (negaiArray[i] === '>') {
+      // カスタム絵文字の可能性のある末尾文字">"を見つけた場合
+      if (
+        newCustomEmoji.index !== undefined &&
+        newCustomEmoji.name !== undefined &&
+        newCustomEmoji.id !== undefined &&
+        isProcessingCustomEmojiId
+      ) {
+        // 先頭文字と中間文字が存在した場合
+        const emojiEndPoint = i + 1
+        // カスタム絵文字部分の圧縮
+        negaiArray[newCustomEmoji.index] = '!'
+        negaiArray.splice(
+          newCustomEmoji.index + 1,
+          emojiEndPoint - newCustomEmoji.index - 1
+        )
+        isProcessingCustomEmoji = false
+        isProcessingCustomEmojiId = false
+
+        i = newCustomEmoji.index
+        splicedEmojis.push({
+          index: newCustomEmoji.index,
+          name: newCustomEmoji.name,
+          id: newCustomEmoji.id,
+        })
+      } else if (isProcessingCustomEmoji) {
+        // 先頭文字が見つかったのに中間文字が見つからなかった場合
+        newCustomEmoji = {}
+        isProcessingCustomEmoji = false
+      }
+    }
+
+    // カスタム文字のnameを取得
+    if (
+      isProcessingCustomEmoji &&
+      !isProcessingCustomEmojiId &&
+      ![':', '<', '>'].includes(negaiArray[i])
+    ) {
+      if (emojiNamePattern.test(negaiArray[i])) {
+        // カスタム絵文字名で使える文字か
+        newCustomEmoji.name
+          ? (newCustomEmoji.name += negaiArray[i])
+          : (newCustomEmoji.name = negaiArray[i])
+      } else {
+        // カスタム絵文字として許されざる文字が入っていた場合
+        newCustomEmoji = {}
+        isProcessingCustomEmoji = false
+      }
+    }
+
+    // カスタム文字のidを取得
+    if (isProcessingCustomEmojiId && ![':', '<', '>'].includes(negaiArray[i])) {
+      if (emojiIdPattern.test(negaiArray[i])) {
+        // カスタム絵文字IDで使える文字か
+        newCustomEmoji.id += negaiArray[i]
+      } else {
+        // カスタム絵文字IDとして許されざる文字が入っていた場合
+        newCustomEmoji = {}
+        isProcessingCustomEmoji = false
+        isProcessingCustomEmojiId = false
+      }
+    }
+    i++
+  }
+
+  return splicedEmojis
 }
 
 export default {
@@ -151,8 +275,8 @@ export default {
           .setDescription('願い事をどうぞ')
           .setRequired(true)
     )
-    .addBooleanOption((tokumei) =>
-      tokumei
+    .addBooleanOption((option) =>
+      option
         .setName('匿名')
         .setDescription('匿名で書き込む?')
         .setRequired(false)
@@ -161,131 +285,16 @@ export default {
     const negaiText = interaction.options.getString('願い')
     if (negaiText === null) return
 
-    //願いの分割
     const negaiArray = split(negaiText)
-    let negaiLength: number = negaiArray.length
 
-    let emojiEndPoint: number
-    let judgmentEmoji = false //true間が絵文字の可能性
-    let judgmentEmojiMiddle = false // trueでnameとid間の":"発見
-    const emojiIdPattern = new RegExp('[0-9]') // emojiidの例外処理用
-    const emojiNamePattern = new RegExp('[a-z]|[A-Z]|[0-9]|_') // emojinameの例外処理用
-    let emojiUseNumber = 0
-    let i = 0
     // カスタム絵文字の捜索と圧縮
-    while (!(negaiArray[i] === undefined)) {
-      // カスタム絵文字の可能性のある先端文字"<:"を見つけた場合
-      if (negaiArray[i] === '<' && negaiArray[i + 1] === ':') {
-        if (!judgmentEmoji) {
-          // 頭文字発見の場合
-
-          emojiFirstPoint[emojiUseNumber] = i
-          emojiName[emojiUseNumber] = '!'
-          judgmentEmoji = true
-        } else if (judgmentEmojiMiddle) {
-          // 末尾文字が見つからず、先頭文字が見つかった場合
-          emojiFirstPoint.slice(emojiUseNumber, 1)
-          emojiName.slice(emojiUseNumber, 1)
-          emojiId.slice(emojiUseNumber, 1)
-          judgmentEmoji = false
-          judgmentEmojiMiddle = false
-        } else {
-          // 中間文字すら見つかっていない場合
-          emojiFirstPoint.slice(emojiUseNumber, 1)
-          judgmentEmoji = false
-        }
-      }
-      // カスタム文字のnameとidをわける":"が見つかった場合
-      if (negaiArray[i] === ':' && !judgmentEmojiMiddle) {
-        if (
-          judgmentEmoji &&
-          !(i == emojiFirstPoint[emojiFirstPoint.length - 1] + 1)
-        ) {
-          // 前に先頭文字が見つかっていた場合
-          judgmentEmojiMiddle = true
-
-          emojiId[emojiUseNumber] = '!'
-        } else {
-          // ":"のみ見つかった場合
-        }
-      }
-      // カスタム絵文字の可能性のある末尾文字">"を見つけた場合の処理
-      if (negaiArray[i] === '>') {
-        if (judgmentEmojiMiddle) {
-          // 先頭文字と中間文字が存在した場合
-
-          emojiEndPoint = i + 1
-          // カスタム絵文字部分の圧縮
-          negaiArray[emojiFirstPoint[emojiFirstPoint.length - 1]] = '!'
-          negaiArray.splice(
-            emojiFirstPoint[emojiUseNumber] + 1,
-            emojiEndPoint - emojiFirstPoint[emojiUseNumber] - 1
-          )
-          negaiLength = negaiArray.length
-          judgmentEmoji = false
-          judgmentEmojiMiddle = false
-
-          i = emojiFirstPoint[emojiUseNumber]
-          emojiName[emojiUseNumber] = emojiName[emojiUseNumber].replace('!', '')
-          emojiId[emojiUseNumber] = emojiId[emojiUseNumber].replace('!', '')
-          emojiUseNumber++
-        } else if (judgmentEmoji) {
-          // 先頭文字が見つかったのに中間文字が見つからなかった場合
-
-          emojiFirstPoint.slice(emojiUseNumber, 1)
-          emojiName.slice(emojiUseNumber, 1)
-          judgmentEmoji = false
-        } else {
-          // 末尾文字だけ見つかった場合
-        }
-      }
-      // カスタム文字のnameを取得
-      if (
-        judgmentEmoji &&
-        !judgmentEmojiMiddle &&
-        !(
-          negaiArray[i] === ':' ||
-          negaiArray[i] === '<' ||
-          negaiArray[i] === '>'
-        )
-      ) {
-        if (emojiNamePattern.test(negaiArray[i])) {
-          // emojinameで使える文字か
-          emojiName[emojiUseNumber] += negaiArray[i]
-        } else {
-          // emojinameに許されざる文字が入っていた場合
-          emojiFirstPoint.slice(emojiUseNumber, 1)
-          emojiName.slice(emojiUseNumber, 1)
-          judgmentEmoji = false
-        }
-      }
-      // カスタム文字のidを取得
-      if (
-        judgmentEmojiMiddle &&
-        !(
-          negaiArray[i] === ':' ||
-          negaiArray[i] === '<' ||
-          negaiArray[i] === '>'
-        )
-      ) {
-        if (emojiIdPattern.test(negaiArray[i])) {
-          // emojiidで使える文字か
-          emojiId[emojiUseNumber] += negaiArray[i]
-        } else {
-          // emojiidに許されざる文字が入っていた場合
-          emojiFirstPoint.slice(emojiUseNumber, 1)
-          emojiName.slice(emojiUseNumber, 1)
-          emojiId.slice(emojiUseNumber, 1)
-          judgmentEmoji = false
-          judgmentEmojiMiddle = false
-        }
-      }
-      i++
-    }
+    const splicedEmojis = spliceCustomEmojis(negaiArray)
+    const negaiLength = negaiArray.length
+    console.log(splicedEmojis)
 
     await interaction.reply({
       content:
-        '叶うわけないやろがい' + negaiText + userMention(interaction.user.id),
+        '叶うわけないやろがい ' + negaiText + userMention(interaction.user.id),
       ephemeral: true,
     })
     //匿名かの判断
@@ -302,9 +311,7 @@ export default {
     }
 
     // 短冊の作成
-    let tanzakuString = '★━┷━━━┓'
-
-    tanzakuString += '\n'
+    let tanzakuString = '★━┷━━━┓\n'
 
     const splitSignature = split(tanzakuSignature)
     const signatureLength: number = splitSignature.length
@@ -319,7 +326,7 @@ export default {
       for (let i = 0; i < negaiLength; i++) {
         tanzakuString +=
           '┃' +
-          formatLine(negaiArray[i], i) +
+          formatLine(negaiArray[i], i, splicedEmojis) +
           '  ' +
           convertToFullWidth(splitSignature[diffLength + i]) +
           ' ┃' +
@@ -330,12 +337,20 @@ export default {
       const diffLength = negaiLength - signatureLength
       for (let i = 0; i < diffLength; i++) {
         tanzakuString +=
-          '┃' + formatLine(negaiArray[i], i) + '  　' + ' ┃' + '\n'
+          '┃' +
+          formatLine(negaiArray[i], i, splicedEmojis) +
+          '  　' +
+          ' ┃' +
+          '\n'
       }
       for (let i = 0; i < signatureLength; i++) {
         tanzakuString +=
           '┃ ' +
-          formatLine(negaiArray[diffLength + i], diffLength + i) +
+          formatLine(
+            negaiArray[diffLength + i],
+            diffLength + i,
+            splicedEmojis
+          ) +
           '  ' +
           convertToFullWidth(splitSignature[i]) +
           ' ┃' +
