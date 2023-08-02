@@ -121,18 +121,18 @@ const emojiFirstPoint: number[] = []
 const emojiName: string[] = []
 const emojiId: string[] = []
 
-function moziHenkan(str: string, i: number) {
+function formatLine(characte: string, negaiIndex: number) {
   let returnString = ''
-  if (!(Object.keys(parse(str)).length === 0)) {
+  if (!(Object.keys(parse(characte)).length === 0)) {
     // 絵文字アリの場合
-    returnString = str
-  } else if (emojiFirstPoint.includes(i)) {
+    returnString = characte
+  } else if (emojiFirstPoint.includes(negaiIndex)) {
     // カスタム絵文字アリの場合
-    const useEmojiNumber = emojiFirstPoint.indexOf(i)
+    const useEmojiNumber = emojiFirstPoint.indexOf(negaiIndex)
     returnString = formatEmoji(emojiId[useEmojiNumber])
   } else {
     //絵文字無しの場合
-    returnString = ' ' + convertToFullWidth(str) + ' '
+    returnString = ' ' + convertToFullWidth(characte) + ' '
   }
 
   return returnString
@@ -319,7 +319,7 @@ export default {
       for (let i = 0; i < negaiLength; i++) {
         tanzakuString +=
           '┃' +
-          moziHenkan(negaiArray[i], i) +
+          formatLine(negaiArray[i], i) +
           '  ' +
           convertToFullWidth(splitSignature[diffLength + i]) +
           ' ┃' +
@@ -330,12 +330,12 @@ export default {
       const diffLength = negaiLength - signatureLength
       for (let i = 0; i < diffLength; i++) {
         tanzakuString +=
-          '┃' + moziHenkan(negaiArray[i], i) + '  　' + ' ┃' + '\n'
+          '┃' + formatLine(negaiArray[i], i) + '  　' + ' ┃' + '\n'
       }
       for (let i = 0; i < signatureLength; i++) {
         tanzakuString +=
           '┃ ' +
-          moziHenkan(negaiArray[diffLength + i], diffLength + i) +
+          formatLine(negaiArray[diffLength + i], diffLength + i) +
           '  ' +
           convertToFullWidth(splitSignature[i]) +
           ' ┃' +
