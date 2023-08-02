@@ -33,7 +33,7 @@ export const loadCommands = async (): Promise<
   for (const dir of commandDirs) {
     const commandFiles = fs
       .readdirSync(path.resolve(__dirname, dir))
-      .filter((file) => file.endsWith('.ts'))
+      .filter((file) => file.endsWith('.ts') || file.endsWith('.js'))
 
     for (const file of commandFiles) {
       console.log(`Loading command file: ${file}`)
