@@ -290,7 +290,6 @@ export default {
     // カスタム絵文字の捜索と圧縮
     const splicedEmojis = spliceCustomEmojis(negaiArray)
     const negaiLength = negaiArray.length
-    console.log(splicedEmojis)
 
     await interaction.reply({
       content:
