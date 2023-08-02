@@ -1,13 +1,14 @@
 import {
   ChatInputCommandInteraction,
   SlashCommandBuilder,
+  formatEmoji,
   userMention,
 } from 'discord.js'
 import client from '../..'
 import split from 'graphemesplit'
 import { parse } from 'twemoji-parser'
 
-function moziZennkakuKa(str: string) {
+function convertToFullWidth(str: string) {
   const kanaMap: {
     [K: string]: string
   } = {
@@ -128,11 +129,10 @@ function moziHenkan(str: string, i: number) {
   } else if (emojiFirstPoint.includes(i)) {
     // カスタム絵文字アリの場合
     const useEmojiNumber = emojiFirstPoint.indexOf(i)
-    returnString =
-      '<:' + emojiName[useEmojiNumber] + ':' + emojiId[useEmojiNumber] + '>'
+    returnString = formatEmoji(emojiId[useEmojiNumber])
   } else {
     //絵文字無しの場合
-    returnString = ' ' + moziZennkakuKa(str) + ' '
+    returnString = ' ' + convertToFullWidth(str) + ' '
   }
 
   return returnString
@@ -163,7 +163,7 @@ export default {
 
     //願いの分割
     const negaiArray = split(negaiText)
-    let negaiLongs: number = negaiArray.length
+    let negaiLength: number = negaiArray.length
 
     let emojiEndPoint: number
     let judgmentEmoji = false //true間が絵文字の可能性
@@ -221,7 +221,7 @@ export default {
             emojiFirstPoint[emojiUseNumber] + 1,
             emojiEndPoint - emojiFirstPoint[emojiUseNumber] - 1
           )
-          negaiLongs = negaiArray.length
+          negaiLength = negaiArray.length
           judgmentEmoji = false
           judgmentEmojiMiddle = false
 
@@ -289,16 +289,16 @@ export default {
       ephemeral: true,
     })
     //匿名かの判断
-    let useName: string
+    let tanzakuSignature: string
     if (
       interaction.options.getBoolean('匿名') === false ||
       interaction.options.getBoolean('匿名') === null
     ) {
       //匿名では無い場合
-      useName = interaction.user.username
+      tanzakuSignature = interaction.user.username
     } else {
       //匿名の場合
-      useName = '匿名'
+      tanzakuSignature = '匿名'
     }
 
     // 短冊の作成
@@ -306,39 +306,38 @@ export default {
 
     tanzakuString += '\n'
 
-    const splitUsername = split(useName)
-    const usernameLongs: number = splitUsername.length
+    const splitSignature = split(tanzakuSignature)
+    const signatureLength: number = splitSignature.length
 
-    let overString: number
-    if (usernameLongs > negaiLongs) {
+    if (signatureLength > negaiLength) {
       //ユーザー名の方が長かった場合
-      overString = usernameLongs - negaiLongs
-      for (let i = 0; i < overString; i++) {
+      const diffLength = signatureLength - negaiLength
+      for (let i = 0; i < diffLength; i++) {
         tanzakuString +=
-          '┃ ' + '　   ' + moziZennkakuKa(splitUsername[i]) + ' ┃' + '\n'
+          '┃ ' + '　   ' + convertToFullWidth(splitSignature[i]) + ' ┃' + '\n'
       }
-      for (let i = 0; i < negaiLongs; i++) {
+      for (let i = 0; i < negaiLength; i++) {
         tanzakuString +=
           '┃' +
           moziHenkan(negaiArray[i], i) +
           '  ' +
-          moziZennkakuKa(splitUsername[overString + i]) +
+          convertToFullWidth(splitSignature[diffLength + i]) +
           ' ┃' +
           '\n'
       }
     } else {
       //usernameの方が短かった場合
-      overString = negaiLongs - usernameLongs
-      for (let i = 0; i < overString; i++) {
+      const diffLength = negaiLength - signatureLength
+      for (let i = 0; i < diffLength; i++) {
         tanzakuString +=
           '┃' + moziHenkan(negaiArray[i], i) + '  　' + ' ┃' + '\n'
       }
-      for (let i = 0; i < usernameLongs; i++) {
+      for (let i = 0; i < signatureLength; i++) {
         tanzakuString +=
           '┃ ' +
-          moziHenkan(negaiArray[overString + i], overString + i) +
+          moziHenkan(negaiArray[diffLength + i], diffLength + i) +
           '  ' +
-          moziZennkakuKa(splitUsername[i]) +
+          convertToFullWidth(splitSignature[i]) +
           ' ┃' +
           '\n'
       }
@@ -352,6 +351,9 @@ export default {
     const targetChannel = client.channels.cache.get('1126734764708216973') //短冊チャンネル
     if (targetChannel?.isTextBased()) {
       await targetChannel.send(tanzakuString)
+      console.log(
+        `🎋 Generated new tanabata: "${negaiText}" by ${interaction.user.username}`
+      )
     }
   },
 }
