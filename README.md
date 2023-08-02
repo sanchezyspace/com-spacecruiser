@@ -187,6 +187,8 @@ Discordサーバー、sanchezyspace管理用Bot
 - dotenv
 - TypeScript
 - Yargs
+- graphemesplit
+- twemoji-parser
 
 - ESLint
 - Prettier
