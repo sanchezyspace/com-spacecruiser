@@ -12,7 +12,7 @@ export default {
 
   execute: async (interaction: ChatInputCommandInteraction) => {
     const modal = new ModalBuilder()
-      .setCustomId('addprojectModal')
+      .setCustomId('addProjectModal')
       .setTitle('Create New Project')
 
     const projectIdInput = new TextInputBuilder()
