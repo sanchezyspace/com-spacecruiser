@@ -105,6 +105,11 @@ export default {
         message: 'プロジェクトに関する雑談',
       },
       { type: 'progress', name: '🚀 progress', message: '進捗報告チャンネル' },
+      {
+        type: 'discussion',
+        name: '💬 discussion',
+        message: 'プロジェクトについて議論',
+      },
     ]
     await progressReply.addProgress('⏳ Creating posts...')
     for (const [key, post] of Object.entries(defaultPosts)) {
